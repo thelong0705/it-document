@@ -21,13 +21,12 @@
                 </div>
                 <ul class="nav navbar-nav navbar-right">
                     {% if user.is_authenticated %}
-                        <li><a href="{% url 'user_detail' user.pk %}">Your Profile</a></li>
+                        <li><a href="{% url 'user_detail' user.userprofileinfo.id %}">Your Profile</a></li>
                         <li><a href="{% url 'logout' %}">Logout</a></li>
                     {% else %}
                         <li><a href="{% url 'register' %}">Register</a></li>
                         <li><a href="{% url 'login' %}">Login</a></li>
                     {% endif %}
-                    <li></li>
                 </ul>
             </div>
         </nav>

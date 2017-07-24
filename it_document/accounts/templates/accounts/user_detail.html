@@ -4,12 +4,15 @@
         <img src="{{ MEDIA_URL }}{{ user_profile.avatar }}" class="media-object img-circle">
     </div>
     <div class="page-header">
-        <h1 style="display: inline"><strong>Username:{{ user.username }}</strong></h1>
-        <a href="{% url 'update_user_detail' user_profile.id %}" class="btn btn-primary" style="float: right"><span class="glyphicon glyphicon-edit" ></span> Edit profile</a>
+        <h1 style="display: inline"><strong>Username:{{ user_profile.user.username }}</strong></h1>
+        {% if user == user_profile.user %}
+        <a href="{% url 'update_user_detail' user_profile.id %}" class="btn btn-primary" style="float: right">
+            <span class="glyphicon glyphicon-edit" ></span> Edit profile</a>
+        {% endif %}
         <br />
     </div>
-    <h3>Email: {{ user.email }}</h3>
-    <h3>Joined date: {{ user.date_joined|date:"d M Y" }}</h3>
+    <h3>Email: {{ user_profile.user.email }}</h3>
+    <h3>Joined date: {{ user_profile.user.date_joined|date:"d M Y" }}</h3>
     <h3>Biography: {{ user_profile.biography }}</h3>
 {% endblock %}
 

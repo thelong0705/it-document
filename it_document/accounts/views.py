@@ -1,7 +1,8 @@
 from django.contrib.auth.models import User
-from django.shortcuts import render
-from django.urls import reverse_lazy
-from django.views.generic import CreateView, DetailView, UpdateView
+from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import render, redirect
+from django.urls import reverse_lazy, reverse
+from django.views.generic import CreateView, DetailView, UpdateView, TemplateView
 from accounts.forms import UserCreateForm
 from .models import UserProfileInfo
 
@@ -19,17 +20,21 @@ class RegisterView(CreateView):
 
 
 class UserDetail(DetailView):
-    model = User
+    model = UserProfileInfo
     template_name = 'accounts/user_detail.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        print(self.object)
-        context['user_profile'] = UserProfileInfo.objects.get(user=self.object)
-        return context
+    context_object_name = 'user_profile'
 
 
 class UpdateUserProfile(UpdateView):
     model = UserProfileInfo
     fields = ('avatar', 'biography')
     template_name = 'accounts/user_update.html'
+
+    def render_to_response(self, context, **response_kwargs):
+        if self.object.user != self.request.user:
+            return HttpResponseRedirect(reverse('no_permission'))
+        return super(UpdateUserProfile, self).render_to_response(context, **response_kwargs)
+
+
+class NoPermissionView(TemplateView):
+    template_name = 'accounts/no_permission.html'
