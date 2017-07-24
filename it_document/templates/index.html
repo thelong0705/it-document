@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="jumbotron">
+        {% if user.is_authenticated %}
+            <h1>Welcome {{ user.username }} to document sharing site</h1>
+        {% else %}
+            <h1>Document sharing site</h1>
+        {% endif %}
+    <img src="">
+    </div>
+
+
+{% endblock %}

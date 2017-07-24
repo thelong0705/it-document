@@ -1,0 +1,10 @@
+{% extends "base.html" %}{% load bootstrap3 %}{% load staticfiles %}
+{% block content %}
+
+    <form method="post" autocomplete="off">
+        {% csrf_token %}
+        {% bootstrap_form form %}
+        <input type="submit" class="btn btn-primary" value="Login">
+        <a href="{% url 'register'%}" class="btn btn-primary" id="register-btn">Register</a>
+    </form>
+{% endblock %}
