@@ -1,7 +1,7 @@
 {% extends "base.html" %}{% load bootstrap3 %}{% load staticfiles %}
 {% block content %}
     <div class="jumbotron">
-        <img src="{{ MEDIA_URL }}{{ user_profile.avatar }}" class="media-object img-circle">
+        <img src="{{ MEDIA_URL }}{{ user_profile.avatar }}" class="media-object img-circle avatar">
     </div>
     <div class="page-header">
         <h1 style="display: inline"><strong>Username:{{ user_profile.user.username }}</strong></h1>

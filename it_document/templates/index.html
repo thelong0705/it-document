@@ -1,13 +1,17 @@
 {% extends 'base.html' %}
+{% load staticfiles %}
+{% load document_template_tags%}
 {% block content %}
     <div class="jumbotron">
         {% if user.is_authenticated %}
-            <h1>Welcome {{ user.username }} to document sharing site</h1>
+            <a href="{% url 'add_doc' %}" class="btn btn-primary btn-lg">
+                <span class="glyphicon glyphicon-plus"></span>Add a new document :)</a>
         {% else %}
             <h1>Document sharing site</h1>
         {% endif %}
-    <img src="">
     </div>
-
-
+    <h1>Top likes</h1>
+    {% get_top_likes_list %}
+    <h1>Top views</h1>
+    {% get_top_views_list %}
 {% endblock %}

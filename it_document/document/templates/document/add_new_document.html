@@ -1,0 +1,25 @@
+{% extends "base.html" %}{% load bootstrap3 %}{% load staticfiles %}
+{% block content %}
+    <div class="container">
+        <form method="post">
+            {% csrf_token %}
+            <h1>Add a new document</h1>
+            {% bootstrap_form form %}
+
+            <div class="form-group">
+                <label class="control-label" for="other">You can specify a new category here:</label>
+                <div class="row">
+                    <div class="col-md-10">
+                        <input type="text" maxlength="50" class="form-control" id="add-cat-input">
+                    </div>
+                    <div class="col-md-1">
+                        <a id="add-cat-btn" class="btn btn-primary" style="margin-left:40px ">
+                            <span class="glyphicon glyphicon-plus"></span>Add Category</a>
+                    </div>
+                </div>
+            </div>
+            <h4>Notes: Fields with * are required</h4>
+            <input type="submit" class="btn-primary btn" value="Submit">
+        </form>
+    </div>
+{% endblock %}
