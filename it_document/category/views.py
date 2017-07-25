@@ -1,8 +1,12 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import authentication, permissions
+from rest_framework import authentication, permissions, status
 from .models import Category
+
+
+def unslugify(value):
+    return value.replace('-', ' ').title()
 
 
 class PostCategoryAPI(APIView):
@@ -10,11 +14,10 @@ class PostCategoryAPI(APIView):
     permission_classes = [permissions.IsAuthenticated, ]
 
     def get(self, request, category_name):
-        obj = None
         if category_name == '' or category_name is None:
-            created = False
-        else:
-            obj, created = Category.objects.get_or_create(name=category_name)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        category_name = unslugify(category_name)
+        obj, created = Category.objects.get_or_create(name=category_name)
         data = {
             "created": created,
             "pk": obj.pk

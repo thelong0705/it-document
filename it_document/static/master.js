@@ -1,24 +1,32 @@
+function convertToSlug(Text) {
+    return Text
+        .toLowerCase()
+        .replace(/ /g, '-')
+        .replace(/[^\w-]+/g, '')
+        ;
+}
+
 $("#add-cat-btn").click(function (e) {
-    console.log("new");
     e.preventDefault();
-    var this_ = $(this);
-    var name = $("#add-cat-input").val();
-    var api_url = 'http://127.0.0.1:8000/categories/api/add_category/'+name;
-    var count = $('#category-choice').length;
-    console.log("new");
+    let name = $("#add-cat-input").val();
+    let slug = convertToSlug(name);
+    let api_url = `http://127.0.0.1:8000/categories/api/add_category/${slug}`;
+
     $.ajax({
         url: api_url,
         method: "GET",
         data: {},
         success: function (data) {
             if (data.created) {
-                var o = new Option(name, data.pk);
-                $(o).html(name);
-                $("#category-choice").append(o);
+                $('#category-choice').append($('<option>', {
+                    value: data.pk,
+                    text: name
+                }));
                 $("#add-cat-input").val("");
             }
         },
         error: function (error) {
+            $("label[for='other']").text("You have to specify a new category before adding it")
         }
     })
 });

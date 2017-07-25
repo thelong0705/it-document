@@ -33,7 +33,7 @@ class UpdateUserProfile(UpdateView):
     def render_to_response(self, context, **response_kwargs):
         if self.object.user != self.request.user:
             return HttpResponseRedirect(reverse('no_permission'))
-        return super(UpdateUserProfile, self).render_to_response(context,   **response_kwargs)
+        return super(UpdateUserProfile, self).render_to_response(context, **response_kwargs)
 
 
 class NoPermissionView(TemplateView):
