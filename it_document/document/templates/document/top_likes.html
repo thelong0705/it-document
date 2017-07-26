@@ -1,19 +1,21 @@
 {% load staticfiles %}
 <div class="row">
     {% for doc in documents %}
-        <div class="col-md-2">
-            <div class="card">
-                <img src="{{ doc.image.url }}" alt="Document Image" style="width: 100%">
-                <div class="card-container">
-                    <h4><b>{{ doc }}</b></h4>
-                    Category:
-                    {% for topic in doc.topic.all %}
-                        {{ topic }},
-                    {% endfor %}
-                    <p>Likes:{{ doc.number_of_likes }} Views:{{ doc.number_of_views }}</p>
-                </div>
-            </div>
+    <div class="card" onclick="location.href='{% url 'document_detail' doc.slug %}';" style="cursor: pointer;">
+        <img src="{{ doc.image.url }}" alt="Document Image" style="width: 100%; height: 50%">
+        <div class="card-container">
+        <div class="ellipsis">
+            <h4 ><b>{{ doc|title }}</b></h4>
         </div>
-
-    {% endfor %}
+        <div class="ellipsis">
+            <p>Category:
+            {% for topic in doc.topic.all %}
+                {{ topic }},
+            {% endfor %}</p>
+        </div>
+            <p>{{ doc.number_of_likes }} Likes {{ doc.number_of_views }} Views</p>
+        </div>
+    </div>
+{% endfor %}
 </div>
+

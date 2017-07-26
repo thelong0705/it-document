@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h1>Are you sure you want to delete this document?</h1>
+    <form method="post">
+        {% csrf_token %}
+        <input type="submit" value="I'm sure" class="btn btn-danger">
+        <input type="button" value="Take me back" onClick="history.go(-1);" class="btn btn-primary">
+    </form>
+{% endblock %}

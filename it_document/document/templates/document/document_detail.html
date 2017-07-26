@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% load document_template_tags %}
+{% block content %}
+    <div class="jumbotron">
+        <div class="media">
+            <div class="media-left media-middle">
+                <a href="#"> <img class="media-object document-image" src="{{ MEDIA_URL }}{{ document.image }}"
+                                  alt="Document image"></a>
+                <br/>
+                {% if user == document.posted_user %}
+                    <a href="{% url 'document_update' document.slug %}" class="btn btn-primary" style="float: left; width: 80px;">
+                        <span class="glyphicon glyphicon-edit" ></span>Edit</a>
+                    <a href="{% url 'document_delete' document.slug %}" class="btn btn-primary" style="float: right; width: 80px;">
+                        <span class="glyphicon glyphicon-remove" ></span>Delete</a>
+                {% endif %}
+            </div>
+            <div class="media-body">
+                <div style="margin-left: 100px !important;">
+                    <h2 class="media-heading"><strong>{{ document|title }}</strong></h2>
+                    <p>Level: {{ document.level }}.</p>
+                    <p>Category:
+                        {% for topic in document.topic.all %}
+                            {{ topic }},
+                        {% endfor %}
+                    </p>
+                    <p>Link:<a href="{{ document.link }}"></a></p>
+                    <p>Author:<a href="{{ document.author }}"></a></p>
+                    <p>Posted by:{{ document.posted_user|title }}</p>
+                    <p>Review: {{ document.review }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+     <h1>Recommendations</h1>
+    {% get_document_recommendations document %}
+{% endblock %}
