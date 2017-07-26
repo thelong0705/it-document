@@ -3,10 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import authentication, permissions, status
 from .models import Category
-
-
-def unslugify(value):
-    return value.replace('-', ' ').title()
+from it_document.utils import unslugify
 
 
 class PostCategoryAPI(APIView):
@@ -23,3 +20,4 @@ class PostCategoryAPI(APIView):
             "pk": obj.pk
         }
         return Response(data=data)
+

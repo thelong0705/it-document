@@ -5,7 +5,6 @@
             {% csrf_token %}
             <h1>Add a new document</h1>
             {% bootstrap_form form %}
-
             <div class="form-group">
                 <label class="control-label" for="other">You can specify a new category here:</label>
                 <div class="row">
@@ -13,7 +12,7 @@
                         <input type="text" maxlength="50" class="form-control" id="add-cat-input">
                     </div>
                     <div class="col-md-1">
-                        <a id="add-cat-btn" class="btn btn-primary" style="margin-left:40px ">
+                        <a id="add-cat-btn" class="btn btn-primary" data-href="{% url 'add_cat_api' "a" %}" style="margin-left:40px ">
                             <span class="glyphicon glyphicon-plus"></span>Add Category</a>
                     </div>
                 </div>

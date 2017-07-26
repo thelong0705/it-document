@@ -10,7 +10,9 @@ $("#add-cat-btn").click(function (e) {
     e.preventDefault();
     let name = $("#add-cat-input").val();
     let slug = convertToSlug(name);
-    let api_url = `http://127.0.0.1:8000/categories/api/add_category/${slug}`;
+    let str = $(this).attr("data-href");
+    str = str.substring(0, str.length - 1);
+    let api_url = `${str}${slug}`;
 
     $.ajax({
         url: api_url,
@@ -30,3 +32,4 @@ $("#add-cat-btn").click(function (e) {
         }
     })
 });
+

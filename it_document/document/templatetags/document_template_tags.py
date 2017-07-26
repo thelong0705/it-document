@@ -1,5 +1,5 @@
 from django import template
-from document.models import Document
+from document.models import Document, Comment
 from category.models import Category
 
 register = template.Library()
@@ -20,3 +20,7 @@ def get_document_recommendations(document):
     document_recommendations = Document.objects.filter(topic__in=document.topic.all()).exclude(id=document.id)
     return {'documents': set(document_recommendations.order_by('-number_of_likes')[:5])}
 
+
+@register.inclusion_tag('document/comments.html')
+def get_comments(document):
+    return {'comments': Comment.objects.filter(document=document)}

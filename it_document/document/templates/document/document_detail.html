@@ -1,17 +1,15 @@
-{% extends 'base.html' %}
-{% load document_template_tags %}
+{% extends 'base.html' %}{% load document_template_tags %}
 {% block content %}
     <div class="jumbotron">
         <div class="media">
             <div class="media-left media-middle">
                 <a href="#"> <img class="media-object document-image" src="{{ MEDIA_URL }}{{ document.image }}"
-                                  alt="Document image"></a>
-                <br/>
+                                  alt="Document image"></a> <br/>
                 {% if user == document.posted_user %}
-                    <a href="{% url 'document_update' document.slug %}" class="btn btn-primary" style="float: left; width: 80px;">
-                        <span class="glyphicon glyphicon-edit" ></span>Edit</a>
-                    <a href="{% url 'document_delete' document.slug %}" class="btn btn-primary" style="float: right; width: 80px;">
-                        <span class="glyphicon glyphicon-remove" ></span>Delete</a>
+                    <a href="{% url 'document_update' document.slug %}" class="btn btn-primary"
+                       style="float: left; width: 80px;"> <span class="glyphicon glyphicon-edit"></span>Edit</a>
+                    <a href="{% url 'document_delete' document.slug %}" class="btn btn-primary"
+                       style="float: right; width: 80px;"> <span class="glyphicon glyphicon-remove"></span>Delete</a>
                 {% endif %}
             </div>
             <div class="media-body">
@@ -31,6 +29,61 @@
             </div>
         </div>
     </div>
-     <h1>Recommendations</h1>
+    <h1>Comments</h1>
+    <div class="media">
+        <div class="media-left">
+            <img class="media-object img-circle" src="{{ user.userprofileinfo.avatar.url }}" alt="User image"
+                 width="80px" height="80px">
+        </div>
+        <div class="media-body">
+            <div class="form-group">
+                <h4 class="media-heading"><strong>{{ comment.user|title }}</strong></h4>
+                <textarea class="form-control" rows="3" id="comment" onkeypress="addComment();"
+                          placeholder="Press enter to insert comment..."></textarea>
+            </div>
+        </div>
+    </div>
+    {% get_comments document %}
+    <h1 id="recommend">Recommendations</h1>
     {% get_document_recommendations document %}
+    <script>
+        function convertToSlug(Text) {
+            return Text
+                .toLowerCase()
+                .replace(/ /g, '-')
+                .replace(/[^\w-]+/g, '')
+                ;
+        }
+
+        function addComment() {
+            let content_before_slug =$("#comment").val()
+            let content = convertToSlug(content_before_slug);
+            let api_url = "{% url 'add_comment' document.slug "a" %}";
+            api_url = api_url.substring(0, api_url.length - 1);
+            api_url = `${api_url}${content}`
+            if (window.event.keyCode === 13) {
+                $.ajax({
+                    url: api_url,
+                    method: "GET",
+                    data: {},
+                    success: function (data) {
+                         $("#comment").val("");
+                         $("<div class=\"media\">\n" +
+                             "        <div class=\"media-left\">\n" +
+                             "            <img class=\"media-object img-circle\" src=\""+data.image+ "\" alt=\"User image\" width=\"80px\"\n" +
+                             "                              height=\"80px\">\n" +
+                             "        </div>\n" +
+                             "        <div class=\"media-body\">\n" +
+                             "            <h4 class=\"media-heading\"><strong>{{ user|title }}</strong></h4>\n" +
+                                            content_before_slug +
+                             "        </div>\n" +
+                             "    </div> ")
+                             .insertBefore("#recommend");
+                    },
+                    error: function (error) {
+                    }
+                })
+            }
+        }
+    </script>
 {% endblock %}
