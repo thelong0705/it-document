@@ -4,10 +4,17 @@ from category.models import Category
 from autoslug import AutoSlugField
 
 
+class Level(models.Model):
+    name = models.CharField(max_length=200, unique=True)
+
+    def __str__(self):
+        return self.name
+
+
 class Document(models.Model):
     title = models.CharField(max_length=200, unique=True)
-    level = models.CharField(max_length=50)
     topic = models.ManyToManyField(Category)
+    level = models.ManyToManyField(Level)
     author = models.CharField(max_length=50, blank=True, null=True)
     submit_date = models.DateField(auto_now_add=True)
     edited_date = models.DateField(auto_now=True)
@@ -20,6 +27,7 @@ class Document(models.Model):
     posted_user = models.ForeignKey(User)
     approve = models.BooleanField(default=False)
     slug = AutoSlugField(populate_from='title')
+    liked_by = models.ManyToManyField(User, blank=True, related_name='liked_documents')
 
     def __str__(self):
         return self.title

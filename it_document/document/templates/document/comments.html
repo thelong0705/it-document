@@ -7,7 +7,7 @@
         </div>
         <div class="media-body">
             <h4 class="media-heading"><strong>{{ comment.user|title }}</strong></h4>
-            {{ comment.content }}
+            {{ comment.content|linebreaks|safe }}
         </div>
     </div>
 {% endfor %}

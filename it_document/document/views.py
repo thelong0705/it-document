@@ -4,11 +4,14 @@ from django.shortcuts import render
 from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, CreateView, TemplateView, DetailView, UpdateView, DeleteView
 from rest_framework import authentication, permissions, status
+from rest_framework.generics import ListCreateAPIView
 from rest_framework.response import Response
+from rest_framework.routers import DefaultRouter
 from rest_framework.views import APIView
 from it_document.utils import unslugify
 from .models import Document, Comment
 from .forms import DocumentCreateForm
+from rest_framework import viewsets, serializers
 
 
 class AddNewDocumentView(LoginRequiredMixin, CreateView):
@@ -56,19 +59,22 @@ class DeleteDocumentView(LoginRequiredMixin, DeleteView):
         return super().render_to_response(context, **response_kwargs)
 
 
-class PostCommentAPI(APIView):
+class CommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = ('user', 'document', 'content')
+
+
+class NewPostCommentAPI(viewsets.GenericViewSet, ListCreateAPIView):
     authentication_classes = (authentication.SessionAuthentication,)
     permission_classes = [permissions.IsAuthenticated, ]
+    serializer_class = CommentSerializer
 
-    def get(self, request, slug, content):
-        if content == '' or content is None:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-        content = unslugify(content)
-        comment = Comment.objects.create(user=request.user, content=content, document=Document.objects.get(slug=slug))
-        comment.save()
-        data = {
-            "image": request.user.userprofileinfo.avatar.url,
-            "content": content,
-            "username": request.user.username
-        }
-        return Response(data=data)
+    def get_queryset(self):
+        return Comment.objects.all()
+
+
+router = DefaultRouter()
+router.register('comment', NewPostCommentAPI, base_name='CommentAPI')
+
+urlpatterns = router.urls

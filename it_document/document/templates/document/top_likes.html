@@ -13,7 +13,7 @@
                 {{ topic }},
             {% endfor %}</p>
         </div>
-            <p>{{ doc.number_of_likes }} Likes {{ doc.number_of_views }} Views</p>
+            <p>{{ doc.liked_by.count }} Likes {{ doc.number_of_views }} Views</p>
         </div>
     </div>
 {% endfor %}

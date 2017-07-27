@@ -15,7 +15,11 @@
             <div class="media-body">
                 <div style="margin-left: 100px !important;">
                     <h2 class="media-heading"><strong>{{ document|title }}</strong></h2>
-                    <p>Level: {{ document.level }}.</p>
+                    <p>Level:
+                        {% for lv in document.level.all %}
+                            {{ lv }},
+                        {% endfor %}
+                    </p>
                     <p>Category:
                         {% for topic in document.topic.all %}
                             {{ topic }},
@@ -30,55 +34,55 @@
         </div>
     </div>
     <h1>Comments</h1>
-    <div class="media">
-        <div class="media-left">
-            <img class="media-object img-circle" src="{{ user.userprofileinfo.avatar.url }}" alt="User image"
-                 width="80px" height="80px">
-        </div>
-        <div class="media-body">
-            <div class="form-group">
-                <h4 class="media-heading"><strong>{{ comment.user|title }}</strong></h4>
-                <textarea class="form-control" rows="3" id="comment" onkeypress="addComment();"
-                          placeholder="Press enter to insert comment..."></textarea>
+    <hr>
+    {% if user.is_authenticated %}
+        <div class="media">
+            <div class="media-left">
+                <img class="media-object img-circle" src="{{ user.userprofileinfo.avatar.url }}" alt="User image"
+                     width="80px" height="80px">
+            </div>
+            <div class="media-body">
+                <div class="form-group">
+                    <h4 class="media-heading"><strong>{{ comment.user|title }}</strong></h4>
+                    <textarea class="form-control" rows="3" id="comment" onkeypress="comment();"
+                              placeholder="Press enter to insert comment..."></textarea>
+                </div>
             </div>
         </div>
-    </div>
+    {% endif %}
+
     {% get_comments document %}
     <h1 id="recommend">Recommendations</h1>
+    <hr>
     {% get_document_recommendations document %}
     <script>
-        function convertToSlug(Text) {
-            return Text
-                .toLowerCase()
-                .replace(/ /g, '-')
-                .replace(/[^\w-]+/g, '')
-                ;
-        }
-
-        function addComment() {
-            let content_before_slug =$("#comment").val()
-            let content = convertToSlug(content_before_slug);
-            let api_url = "{% url 'add_comment' document.slug "a" %}";
-            api_url = api_url.substring(0, api_url.length - 1);
-            api_url = `${api_url}${content}`
-            if (window.event.keyCode === 13) {
+        function comment() {
+            console.log("test");
+            let api_url = `/documents/api/comment/`;
+            if (window.event.keyCode === 13 && !event.shiftKey) {
+                let content = $("#comment").val();
+                console.log(content);
                 $.ajax({
                     url: api_url,
-                    method: "GET",
-                    data: {},
+                    method: "POST",
+                    data: {
+                        'document':{{ document.id }},
+                        'user': {{ user.id}},
+                        'content': content,
+                        'csrfmiddlewaretoken': '{{ csrf_token }}',
+                    },
                     success: function (data) {
-                         $("#comment").val("");
-                         $("<div class=\"media\">\n" +
-                             "        <div class=\"media-left\">\n" +
-                             "            <img class=\"media-object img-circle\" src=\""+data.image+ "\" alt=\"User image\" width=\"80px\"\n" +
-                             "                              height=\"80px\">\n" +
-                             "        </div>\n" +
-                             "        <div class=\"media-body\">\n" +
-                             "            <h4 class=\"media-heading\"><strong>{{ user|title }}</strong></h4>\n" +
-                                            content_before_slug +
-                             "        </div>\n" +
-                             "    </div> ")
-                             .insertBefore("#recommend");
+                        $("#comment").val("");
+                        $("<div class=\"media\">\n" +
+                            "        <div class=\"media-left\">\n" +
+                            "            <img class=\"media-object img-circle\" src=\"" + `{{ user.userprofileinfo.avatar.url }}` + "\" alt=\"User image\" width=\"80px\"\n" +
+                            "                              height=\"80px\">\n" +
+                            "        </div>\n" +
+                            "        <div class=\"media-body\">\n" +
+                            "            <h4 class=\"media-heading\"><strong>{{ user|title }}</strong></h4>\n" + content +
+                            "        </div>\n" +
+                            "    </div> ")
+                            .insertBefore("#recommend");
                     },
                     error: function (error) {
                     }

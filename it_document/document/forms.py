@@ -13,7 +13,8 @@ class DocumentCreateForm(ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['title'].label = 'Title*'
         self.fields['topic'].label = 'Categories*'
+        self.fields['level'].label = 'Level*'
+        self.fields['level'].help_text = 'Use ctrl or command to select multiple fields'
         self.fields['topic'].help_text = 'Use ctrl or command to select multiple fields'
         self.fields['review'].label = 'Review*'
         self.fields['topic'].widget.attrs = {'id': 'category-choice'}
-

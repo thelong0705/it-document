@@ -42,5 +42,18 @@
     height:50px;
     text-overflow: ellipsis;
     overflow: hidden;
+}
 
+hr{
+    color: #000;background-color: #000;height: 1px;
+}
+
+.center-div{
+    padding-left: 50px;
+    width: 200px;
+    position: absolute;
+    left: 0;
+    right: 0;
+    margin-left: auto;
+    margin-right: auto;
 }

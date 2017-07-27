@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% load document_template_tags %}
+{% block content %}
+    {% for category in category_list %}
+        <h1>{{ category }}</h1>
+        <hr>
+        {% get_top_document_in_category category %}
+    {% endfor %}
+{% endblock %}
