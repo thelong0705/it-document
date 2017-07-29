@@ -1,14 +1,14 @@
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import HttpResponseRedirect
-from django.shortcuts import render
+from django.db.models import Avg
+from django.http import HttpResponseRedirect, JsonResponse
+from django.shortcuts import render, get_object_or_404
 from django.urls import reverse_lazy, reverse
+from django.views.decorators.http import require_http_methods
 from django.views.generic import ListView, CreateView, TemplateView, DetailView, UpdateView, DeleteView
 from rest_framework import authentication, permissions, status
 from rest_framework.generics import ListCreateAPIView
-from rest_framework.response import Response
 from rest_framework.routers import DefaultRouter
-from rest_framework.views import APIView
-from it_document.utils import unslugify
 from .models import Document, Comment
 from .forms import DocumentCreateForm
 from rest_framework import viewsets, serializers
@@ -33,6 +33,11 @@ class DocumentDetailView(DetailView):
     template_name = 'document/document_detail.html'
     context_object_name = 'document'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['rating'] = self.object.userratedocument_set.all().aggregate(Avg('rating'))['rating__avg']
+        return context
+
 
 class DocumentUpdateView(LoginRequiredMixin, UpdateView):
     model = Document
@@ -45,7 +50,7 @@ class DocumentUpdateView(LoginRequiredMixin, UpdateView):
         return super().render_to_response(context, **response_kwargs)
 
     def get_success_url(self):
-        return reverse('document_detail', kwargs={'slug': self.get_object().slug})
+        return reverse('document_detail', kwargs={'id': self.get_object().id})
 
 
 class DeleteDocumentView(LoginRequiredMixin, DeleteView):
@@ -70,11 +75,24 @@ class NewPostCommentAPI(viewsets.GenericViewSet, ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticated, ]
     serializer_class = CommentSerializer
 
-    def get_queryset(self):
-        return Comment.objects.all()
-
 
 router = DefaultRouter()
 router.register('comment', NewPostCommentAPI, base_name='CommentAPI')
-
 urlpatterns = router.urls
+
+
+@login_required()
+def like(request, pk):
+    user = request.user
+    document = get_object_or_404(Document, pk=pk)
+    if user in document.liked_by.all():
+        document.liked_by.remove(user)
+        is_like = False
+    else:
+        document.liked_by.add(user)
+        is_like = True
+    data = {
+        "is_like": is_like,
+        "num_likes": document.liked_by.count()
+    }
+    return JsonResponse(data=data)

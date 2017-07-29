@@ -1,7 +1,8 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.core.validators import MinValueValidator, MaxValueValidator
+
 from category.models import Category
-from autoslug import AutoSlugField
 
 
 class Level(models.Model):
@@ -13,7 +14,7 @@ class Level(models.Model):
 
 class Document(models.Model):
     title = models.CharField(max_length=200, unique=True)
-    topic = models.ManyToManyField(Category)
+    topic = models.ManyToManyField(Category, )
     level = models.ManyToManyField(Level)
     author = models.CharField(max_length=50, blank=True, null=True)
     submit_date = models.DateField(auto_now_add=True)
@@ -26,7 +27,6 @@ class Document(models.Model):
     number_of_views = models.PositiveIntegerField(default=0)
     posted_user = models.ForeignKey(User)
     approve = models.BooleanField(default=False)
-    slug = AutoSlugField(populate_from='title')
     liked_by = models.ManyToManyField(User, blank=True, related_name='liked_documents')
 
     def __str__(self):
@@ -41,3 +41,12 @@ class Comment(models.Model):
 
     def __str__(self):
         return self.content
+
+
+class UserRateDocument(models.Model):
+    user = models.ForeignKey(User)
+    document = models.ForeignKey(Document)
+    rating = models.PositiveIntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
+
+    class Meta:
+        unique_together = ('user', 'document')

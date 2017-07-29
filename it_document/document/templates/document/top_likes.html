@@ -1,7 +1,7 @@
 {% load staticfiles %}
 <div class="row">
     {% for doc in documents %}
-    <div class="card" onclick="location.href='{% url 'document_detail' doc.slug %}';" style="cursor: pointer;">
+    <div class="card" onclick="location.href='{% url 'document_detail' doc.id %}';" style="cursor: pointer;">
         <img src="{{ doc.image.url }}" alt="Document Image" style="width: 100%; height: 50%">
         <div class="card-container">
         <div class="ellipsis">

@@ -38,17 +38,19 @@
 }
 
 .ellipsis {
-    width:180px;
-    height:50px;
+    width: 180px;
+    height: 50px;
     text-overflow: ellipsis;
     overflow: hidden;
 }
 
-hr{
-    color: #000;background-color: #000;height: 1px;
+hr {
+    color: #000;
+    background-color: #000;
+    height: 1px;
 }
 
-.center-div{
+.center-div {
     padding-left: 50px;
     width: 200px;
     position: absolute;
@@ -56,4 +58,12 @@ hr{
     right: 0;
     margin-left: auto;
     margin-right: auto;
+}
+
+.redstar{
+    color: red;
+}
+
+.blackstar{
+    color: black;
 }

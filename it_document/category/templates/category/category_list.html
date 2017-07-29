@@ -3,7 +3,7 @@
 {% load document_template_tags %}
 {% block content %}
     {% for category in category_list %}
-        <h1>{{ category }}</h1>
+        <h1><a href="{% url 'category_detail' category.id %}">{{ category|title }}</a></h1>
         <hr>
         {% get_top_document_in_category category %}
     {% endfor %}

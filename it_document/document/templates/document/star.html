@@ -1,0 +1,108 @@
+<div>
+    <span class="glyphicon glyphicon-star star" id="star-1"></span> <span class="glyphicon glyphicon-star star"
+                                                                          id="star-2"></span> <span
+        class="glyphicon glyphicon-star star" id="star-3"></span> <span class="glyphicon glyphicon-star star"
+                                                                        id="star-4"></span> <span
+        class="glyphicon glyphicon-star star" id="star-5"></span>
+    <script>
+        const NUM_STARS = 5;
+        const colorRed = `rgb(255, 0, 0)`;
+        const colorBlack = `rgb(51, 51, 51)`;
+        function changeColor(starId) {
+            let star = $(`#star-${starId}`);
+            if (star.css("color") === colorBlack) {
+                for (let i = 1; i <= starId; i++)
+                    $(`#star-${i}`).css("color", colorRed);
+            } else {
+                for (let i = starId; i <= NUM_STARS; i++)
+                    $(`#star-${i}`).css("color", colorBlack);
+            }
+        }
+
+        for (let i = 1; i <= 5; i++) {
+            $(`#star-${i}`).on("mouseover", function () {
+                changeColor(i);
+            })
+        }
+{#        let star1 = $(`#star-1`);#}
+{#        let star2 = $(`#star-2`);#}
+{#        let star3 = $(`#star-3`);#}
+{#        let star4 = $(`#star-4`);#}
+{#        let star5 = $(`#star-5`);#}
+{#        star1.on("mouseover", function () {#}
+{#            if (star1.css('color') === colorBlack) {#}
+{#                star1.css("color", colorRed);#}
+{#                star2.css("color", colorBlack);#}
+{#                star3.css("color", colorBlack);#}
+{#                star4.css("color", colorBlack);#}
+{#                star5.css("color", colorBlack);#}
+{##}
+{#            }#}
+{#            else {#}
+{#                star1.css("color", colorBlack);#}
+{#                star2.css("color", colorBlack);#}
+{#                star3.css("color", colorBlack);#}
+{#                star4.css("color", colorBlack);#}
+{#                star5.css("color", colorBlack);#}
+{#            }#}
+{#        });#}
+{#         star2.on("mouseover", function () {#}
+{#            if (star2.css('color') === colorBlack) {#}
+{#                star1.css("color", colorRed);#}
+{#                star2.css("color", colorRed);#}
+{#                star3.css("color", colorBlack);#}
+{#                star4.css("color", colorBlack);#}
+{#                star5.css("color", colorBlack);#}
+{##}
+{#            }#}
+{#            else {#}
+{#                star2.css("color", colorBlack);#}
+{#                star3.css("color", colorBlack);#}
+{#                star4.css("color", colorBlack);#}
+{#                star5.css("color", colorBlack);#}
+{#            }#}
+{#        });#}
+{#        star3.on("mouseover", function () {#}
+{#            if (star3.css('color') === colorBlack) {#}
+{#                star1.css("color", colorRed);#}
+{#                star2.css("color", colorRed);#}
+{#                star3.css("color", colorRed);#}
+{#                star4.css("color", colorBlack);#}
+{#                star5.css("color", colorBlack);#}
+{##}
+{#            }#}
+{#            else {#}
+{#                star3.css("color", colorBlack);#}
+{#                star4.css("color", colorBlack);#}
+{#                star5.css("color", colorBlack);#}
+{#            }#}
+{#        });#}
+{#        star4.on("mouseover", function () {#}
+{#            if (star4.css('color') === colorBlack) {#}
+{#                star1.css("color", colorRed);#}
+{#                star2.css("color", colorRed);#}
+{#                star3.css("color", colorRed);#}
+{#                star4.css("color", colorRed);#}
+{#                star5.css("color", colorBlack);#}
+{##}
+{#            }#}
+{#            else {#}
+{#                star4.css("color", colorBlack);#}
+{#                star5.css("color", colorBlack);#}
+{#            }#}
+{#        });#}
+{#        star5.on("mouseover", function () {#}
+{#            if (star5.css('color') === colorBlack) {#}
+{#                star1.css("color", colorRed);#}
+{#                star2.css("color", colorRed);#}
+{#                star3.css("color", colorRed);#}
+{#                star4.css("color", colorRed);#}
+{#                star5.css("color", colorRed);#}
+{##}
+{#            }#}
+{#            else {#}
+{#                star5.css("color", colorBlack);#}
+{#            }#}
+{#        });#}
+    </script>
+</div>

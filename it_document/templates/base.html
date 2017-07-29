@@ -3,12 +3,20 @@
     <head>
         <meta charset="UTF-8">
         <title>Title</title>
-         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
-          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous"> </head>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+              integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+              crossorigin="anonymous">
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
               integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp"
               crossorigin="anonymous">
+        <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
         <link rel="stylesheet" href="{% static 'master.css' %}">
+         <script src="http://code.jquery.com/jquery-3.1.1.js"
+                integrity="sha256-16cdPddA6VdVInumRGo6IbivbERE8p7CQR3HzTBuELA=" crossorigin="anonymous"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+                integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+                crossorigin="anonymous"></script>
+        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     </head>
     <body>
         <nav class="navbar navbar-default" role="navigation">
@@ -21,7 +29,7 @@
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
                            aria-expanded="false">Popular Categories<span class="caret"></span></a>
                         <ul class="dropdown-menu">
-                            {% get_popular_categories  %}
+                            {% get_popular_categories %}
                             <li role="separator" class="divider"></li>
                             <li><a href="{% url 'category_list' %}">All categories</a></li>
                         </ul>
@@ -42,11 +50,33 @@
             {% block content %}
             {% endblock %}
         </div>
-        <script src="http://code.jquery.com/jquery-3.1.1.js" integrity="sha256-16cdPddA6VdVInumRGo6IbivbERE8p7CQR3HzTBuELA="
-          crossorigin="anonymous"></script>
-        <!-- Latest compiled and minified JavaScript -->
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
-          crossorigin="anonymous"></script>
-        <script src="{% static 'master.js' %}"></script>
+        <script>
+            $(function () {
+                let availableTags;
+                 $.ajax({
+                   url: `/categories/all/api`,
+                   method: "GET",
+                   data:{},
+                   success:function (data) {
+                       availableTags=data.name_list;
+                       console.log(availableTags);
+                       $("#tags").autocomplete({
+                            source: availableTags
+                    });
+                   }
+                });
+            });
+        </script>
+        <script>
+            function search() {
+                let content;
+                if (window.event.keyCode === 13)
+                {
+                    content = $('#tags').val();
+                    window.location.href = `/search/${content}`;
+                }
+            }
+        </script>
     </body>
+
 </html>

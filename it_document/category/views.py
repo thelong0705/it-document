@@ -1,28 +1,10 @@
-from django.shortcuts import render
+from django.http import JsonResponse
+from django.views.decorators.http import require_http_methods
 from django.views.generic import DetailView, ListView
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import authentication, permissions, status
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from document.models import Document
 from .models import Category
-from it_document.utils import unslugify
-
-
-class PostCategoryAPI(APIView):
-    authentication_classes = (authentication.SessionAuthentication,)
-    permission_classes = [permissions.IsAuthenticated, ]
-
-    def get(self, request, category_name):
-        if category_name == '' or category_name is None:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-        category_name = unslugify(category_name)
-        obj, created = Category.objects.get_or_create(name=category_name)
-        data = {
-            "created": created,
-            "pk": obj.pk
-        }
-        return Response(data=data)
+from rest_framework import status
 
 
 class CategoryDetailView(DetailView):
@@ -32,7 +14,7 @@ class CategoryDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        document_list = Document.objects.filter(topic__id__contains=self.object.id).order_by('submit_date')
+        document_list = Document.objects.filter(topic__id=self.object.id).order_by('submit_date')
         paginator = Paginator(document_list, 1)
         page = self.request.GET.get('page')
         try:
@@ -49,3 +31,19 @@ class CategoryListView(ListView):
     model = Category
     template_name = 'category/category_list.html'
     context_object_name = 'category_list'
+
+
+@require_http_methods(['POST'])
+def create_category(request):
+    name = request.POST.get('name')
+    if not name:
+        return JsonResponse(data={}, status=status.HTTP_400_BAD_REQUEST)
+    category, created = Category.objects.get_or_create(name=name)
+    if created:
+        return JsonResponse({'created': created, 'pk': category.id}, status=200)
+    return JsonResponse({'created': created}, status=status.HTTP_200_OK)
+
+
+def get_all_category_api(request):
+    name_list = [cat.name for cat in Category.objects.all()]
+    return JsonResponse({'name_list': name_list}, status=status.HTTP_200_OK)

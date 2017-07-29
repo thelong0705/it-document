@@ -3,6 +3,10 @@
     <div class="jumbotron center-in-jumbotron ">
         <a href="{% url 'add_doc' %}" class="btn btn-primary btn-lg "> <span class="glyphicon glyphicon-plus"></span>Add
             a new document :)</a>
+        <div class="ui-widget">
+            <input id="tags" onkeypress="search();" style="width: 400px;height: 40px; padding-right: -45px;">
+            <a href="#" class="btn-primary btn" style=" margin-left: -40px; height: 40px;"><span class="glyphicon glyphicon-search" style="margin-top:5px;"></span></a>
+        </div>
     </div>
     <h1>Top likes</h1>
     <hr>
