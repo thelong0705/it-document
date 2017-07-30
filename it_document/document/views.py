@@ -1,5 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.models import User
 from django.db.models import Avg
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, get_object_or_404
@@ -9,7 +10,7 @@ from django.views.generic import ListView, CreateView, TemplateView, DetailView,
 from rest_framework import authentication, permissions, status
 from rest_framework.generics import ListCreateAPIView
 from rest_framework.routers import DefaultRouter
-from .models import Document, Comment
+from .models import Document, Comment, UserRateDocument
 from .forms import DocumentCreateForm
 from rest_framework import viewsets, serializers
 
@@ -36,6 +37,11 @@ class DocumentDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['rating'] = self.object.userratedocument_set.all().aggregate(Avg('rating'))['rating__avg']
+        context['number_of_rate'] = self.object.userratedocument_set.all().count()
+        try:
+            context['rated'] = self.object.userratedocument_set.get(user__username=self.request.user).rating
+        except UserRateDocument.DoesNotExist:
+            context['rated'] = -1
         return context
 
 
@@ -94,5 +100,26 @@ def like(request, pk):
     data = {
         "is_like": is_like,
         "num_likes": document.liked_by.count()
+    }
+    return JsonResponse(data=data)
+
+
+@login_required()
+@require_http_methods(['POST'])
+def rate(request):
+    rating = request.POST.get('rating')
+    document_id = request.POST.get('document')
+    document = Document.objects.get(id=document_id)
+    rating_obj, created = UserRateDocument.objects.get_or_create(
+        user=request.user, document=document, defaults={'rating': rating}
+    )
+    if not created:
+        rating_obj.rating = rating
+        rating_obj.save()
+    document.rating = document.userratedocument_set.all().aggregate(Avg('rating'))['rating__avg']
+    document.save()
+    data = {
+        'rate_avg': document.userratedocument_set.all().aggregate(Avg('rating'))['rating__avg'],
+        'number_of_votes': document.userratedocument_set.all().count()
     }
     return JsonResponse(data=data)

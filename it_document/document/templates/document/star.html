@@ -1,9 +1,29 @@
 <div>
-    <span class="glyphicon glyphicon-star star" id="star-1"></span> <span class="glyphicon glyphicon-star star"
-                                                                          id="star-2"></span> <span
-        class="glyphicon glyphicon-star star" id="star-3"></span> <span class="glyphicon glyphicon-star star"
-                                                                        id="star-4"></span> <span
-        class="glyphicon glyphicon-star star" id="star-5"></span>
+    <p>
+        <span class="glyphicon glyphicon-star star" id="star-1"></span>
+        <span class="glyphicon glyphicon-star star" id="star-2"></span>
+        <span class="glyphicon glyphicon-star star" id="star-3"></span>
+        <span class="glyphicon glyphicon-star star" id="star-4"></span>
+        <span class="glyphicon glyphicon-star star" id="star-5"></span>
+        {% if rated == -1 %}
+            <span class="score" >{{ 0 }}</span>/5
+        {% else %}
+            <span class="score" >{{ rated }}</span>/5
+        {% endif %}
+
+    </p>
+    {% if rated is None %}
+        <p><a class="btn-primary btn rate-btn" >Rate this!</a></p>
+    {% else %}
+        <p><a class="btn-primary btn rate-btn">Edit rate!</a></p>
+    {% endif %}
+    <script>
+        $(document).ready(function () {
+            let score= parseInt($(`.score`).text());
+            for (let i = 1; i <= score; i++)
+                    $(`#star-${i}`).css("color", colorRed);
+        })
+    </script>
     <script>
         const NUM_STARS = 5;
         const colorRed = `rgb(255, 0, 0)`;
@@ -11,9 +31,11 @@
         function changeColor(starId) {
             let star = $(`#star-${starId}`);
             if (star.css("color") === colorBlack) {
+                $(`.score`).text(`${starId}`);
                 for (let i = 1; i <= starId; i++)
                     $(`#star-${i}`).css("color", colorRed);
             } else {
+                 $(`.score`).text(`${starId-1   }`);
                 for (let i = starId; i <= NUM_STARS; i++)
                     $(`#star-${i}`).css("color", colorBlack);
             }
@@ -24,85 +46,28 @@
                 changeColor(i);
             })
         }
-{#        let star1 = $(`#star-1`);#}
-{#        let star2 = $(`#star-2`);#}
-{#        let star3 = $(`#star-3`);#}
-{#        let star4 = $(`#star-4`);#}
-{#        let star5 = $(`#star-5`);#}
-{#        star1.on("mouseover", function () {#}
-{#            if (star1.css('color') === colorBlack) {#}
-{#                star1.css("color", colorRed);#}
-{#                star2.css("color", colorBlack);#}
-{#                star3.css("color", colorBlack);#}
-{#                star4.css("color", colorBlack);#}
-{#                star5.css("color", colorBlack);#}
-{##}
-{#            }#}
-{#            else {#}
-{#                star1.css("color", colorBlack);#}
-{#                star2.css("color", colorBlack);#}
-{#                star3.css("color", colorBlack);#}
-{#                star4.css("color", colorBlack);#}
-{#                star5.css("color", colorBlack);#}
-{#            }#}
-{#        });#}
-{#         star2.on("mouseover", function () {#}
-{#            if (star2.css('color') === colorBlack) {#}
-{#                star1.css("color", colorRed);#}
-{#                star2.css("color", colorRed);#}
-{#                star3.css("color", colorBlack);#}
-{#                star4.css("color", colorBlack);#}
-{#                star5.css("color", colorBlack);#}
-{##}
-{#            }#}
-{#            else {#}
-{#                star2.css("color", colorBlack);#}
-{#                star3.css("color", colorBlack);#}
-{#                star4.css("color", colorBlack);#}
-{#                star5.css("color", colorBlack);#}
-{#            }#}
-{#        });#}
-{#        star3.on("mouseover", function () {#}
-{#            if (star3.css('color') === colorBlack) {#}
-{#                star1.css("color", colorRed);#}
-{#                star2.css("color", colorRed);#}
-{#                star3.css("color", colorRed);#}
-{#                star4.css("color", colorBlack);#}
-{#                star5.css("color", colorBlack);#}
-{##}
-{#            }#}
-{#            else {#}
-{#                star3.css("color", colorBlack);#}
-{#                star4.css("color", colorBlack);#}
-{#                star5.css("color", colorBlack);#}
-{#            }#}
-{#        });#}
-{#        star4.on("mouseover", function () {#}
-{#            if (star4.css('color') === colorBlack) {#}
-{#                star1.css("color", colorRed);#}
-{#                star2.css("color", colorRed);#}
-{#                star3.css("color", colorRed);#}
-{#                star4.css("color", colorRed);#}
-{#                star5.css("color", colorBlack);#}
-{##}
-{#            }#}
-{#            else {#}
-{#                star4.css("color", colorBlack);#}
-{#                star5.css("color", colorBlack);#}
-{#            }#}
-{#        });#}
-{#        star5.on("mouseover", function () {#}
-{#            if (star5.css('color') === colorBlack) {#}
-{#                star1.css("color", colorRed);#}
-{#                star2.css("color", colorRed);#}
-{#                star3.css("color", colorRed);#}
-{#                star4.css("color", colorRed);#}
-{#                star5.css("color", colorRed);#}
-{##}
-{#            }#}
-{#            else {#}
-{#                star5.css("color", colorBlack);#}
-{#            }#}
-{#        });#}
+    </script>
+    <script>
+        $(`.rate-btn`).click(function () {
+            let score= parseInt($(`.score`).text());
+            let api_url = `/documents/rate/`;
+            $.ajax({
+                url: api_url,
+                method: "POST",
+                data: {
+                        'csrfmiddlewaretoken': `{{ csrf_token }}`,
+                        'rating': score,
+                        'document':{{ document.id }},
+                        'user': {{ user.id}},
+                },
+                success:function (data) {
+                    console.log(`heh`);
+                    $(`.rating-text`).text(`${data.rate_avg} Rating/ ${data.number_of_votes} Votes`);
+                    $(`.rate-btn`).text(`Edit rate!`);
+                    $(`#user-rating-text`).text(`You rated this`);
+                    $(`.score`).text(`${score}`);
+                },
+            });
+        })
     </script>
 </div>

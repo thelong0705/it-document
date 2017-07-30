@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.db.models import Avg
 
 from category.models import Category
 
@@ -28,9 +29,17 @@ class Document(models.Model):
     posted_user = models.ForeignKey(User)
     approve = models.BooleanField(default=False)
     liked_by = models.ManyToManyField(User, blank=True, related_name='liked_documents')
+    rating = models.FloatField(default=0)
 
     def __str__(self):
         return self.title
+
+    def save(self, force_insert=False, force_update=False, using=None,
+             update_fields=None):
+        self.rating = self.userratedocument_set.all().aggregate(Avg('rating'))['rating__avg']
+        if self.rating is None:
+            self.rating = 0
+        super().save()
 
 
 class Comment(models.Model):

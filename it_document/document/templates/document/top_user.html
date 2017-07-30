@@ -1,0 +1,16 @@
+{% load staticfiles %}
+<div class="row">
+    {% for person in users %}
+        <div class="col-md-2">
+            <div class="card" onclick="location.href='{% url 'user_detail' person.id %}'">
+                <figure class="thumb" style="text-align: center">
+                    <div class="user-cover">
+                        <img src="{{ person.userprofileinfo.avatar.url }}" class="img-circle"/>
+                    </div>
+                    <h2 class="overflow ellipsis">{{ person|title }}</h2>
+                    <p> <span class="glyphicon-upload glyphicon"></span> {{ person.document_set.count }} posts</p>
+                </figure>
+            </div>
+        </div>
+    {% endfor %}
+</div>

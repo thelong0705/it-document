@@ -1,13 +1,11 @@
-{% extends 'base.html' %}
-{% load document_template_tags %}
-{% load bootstrap3 %}
+{% extends 'base.html' %}{% load document_template_tags %}{% load bootstrap3 %}
 {% block content %}
     <div class="jumbotron">
         <div class="row">
             <div class="col-md-8">
                 <div class="media">
                     <div class="media-left media-middle">
-                        <a href="#"> <img class="media-object document-image" src="{{ MEDIA_URL }}{{ document.image }}"
+                        <a href="#"> <img class="media-object document-image" src="{{ document.image.url }}"
                                           alt="Document image"></a> <br/>
                         {% if user == document.posted_user %}
                             <a href="{% url 'document_update' document.id %}" class="btn btn-primary"
@@ -38,25 +36,34 @@
                 </div>
             </div>
             <div class="col-md-4 media-right media-middle">
+                <h2 class="media-heading" style="visibility: hidden"><strong>a</strong></h2>
                 <p><span id="num_likes">{{ document.liked_by.count }}</span> Likes</p>
                 {% if user.is_authenticated %}
                     {% if user in document.liked_by.all %}
                         <p>
-                            <a data-href="{% url 'document_like' document.id %}"
-                               class="btn btn-primary" id="like-btn">Unlike</a>
+                            <a data-href="{% url 'document_like' document.id %}" class="btn btn-primary" id="like-btn">Unlike</a>
                         </p>
                     {% else %}
-                        <a data-href="{% url 'document_like' document.id %}" class="btn btn-primary" id="like-btn">
-                            Like</a>
+                        <p>
+                            <a data-href="{% url 'document_like' document.id %}" class="btn btn-primary" id="like-btn">
+                                Like</a>
+                        </p>
                     {% endif %}
                 {% endif %}
-                <br/><br/>
                 {% if rating is None %}
-                    <p>Be the first to rate this document:D</p>
+                    <p class="rating-text">0 votes</p>
                 {% else %}
-                    <p>{{ rating }} Rating</p>
+                    <p class="rating-text">{{ rating }} Rating/ {{ number_of_rate }} Votes</p>
                 {% endif %}
-                {% include 'document/star.html' %}
+                {% if user.is_authenticated %}
+                    {% if rated == -1 %}
+                        <p id="user-rating-text"> You have not rated this </p>
+                    {% else %}
+                        <p>You rated this:</p>
+                    {% endif %}
+                    {% include 'document/star.html' %}
+                {% endif %}
+
             </div>
         </div>
     </div>
@@ -87,19 +94,19 @@
             let api_url = `/documents/api/comment/`;
             if (window.event.keyCode === 13 && !event.shiftKey) {
                 let content = $("#comment").val();
-                console.log(content);
-                $.ajax({
-                    url: api_url,
-                    method: "POST",
-                    data: {
-                        'document':{{ document.id }},
-                        'user': {{ user.id}},
-                        'content': content,
-                        'csrfmiddlewaretoken': '{{ csrf_token }}',
-                    },
-                    success: function (data) {
-                        $("#comment").val("");
-                        $(`<div class="media">
+                if (content !== null && content !== ``) {
+                    $.ajax({
+                        url: api_url,
+                        method: "POST",
+                        data: {
+                            'document':{{ document.id }},
+                            'user': {{ user.id}},
+                            'content': content,
+                            'csrfmiddlewaretoken': '{{ csrf_token }}',
+                        },
+                        success: function (data) {
+                            $("#comment").val("");
+                            $(`<div class="media">
                                <div class="media-left">
                                   <img class="media-object img-circle" src="{{ user.userprofileinfo.avatar.url }}"
                                        alt="User image" width="80px" height="80px">
@@ -109,11 +116,12 @@
                                     <span style="white-space: pre-wrap;">${content}</span>
                                 </div>
                              </div>`)
-                            .insertBefore("#recommend");
-                    },
-                    error: function (error) {
-                    }
-                })
+                                .insertBefore("#recommend");
+                        },
+                        error: function (error) {
+                        }
+                    })
+                }
             }
         }
     </script>
