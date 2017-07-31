@@ -1,3 +1,9 @@
+/*@import url(https://fonts.googleapis.com/css?family=Neuton:300,400,700,400italic);*/
+
+nav {
+    font-size: large;
+}
+
 .avatar {
     width: 150px;
     height: 150px;
@@ -7,7 +13,6 @@
     cursor: pointer;
     box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
 }
-
 
 .container .jumbotron {
     border-radius: 0;
@@ -56,26 +61,28 @@ hr {
 }
 
 #tags {
+    font-size: larger;
     width: 600px;
     height: 40px;
     padding-right: -45px;
     margin-bottom: 30px;
 }
 
-.btn-search{
+.btn-search {
     margin-left: -40px;
     height: 40px;
     border: none;
     border-radius: 0;
 }
 
-.btn-add{
+.btn-add {
     width: 300px;
     border-radius: 0;
-    height: 40px!important;
+    height: 40px !important;
 }
+
 .navbar {
-    margin-bottom:0;
+    margin-bottom: 0;
 }
 
 figure.thumb {
@@ -138,7 +145,193 @@ figure.thumb {
     white-space: nowrap;
     overflow: hidden;
 }
-.user-cover img{
+
+.user-cover img {
     height: 150px;
     width: 150px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+.book-card {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    background-color: #f9f9f9;
+    width: 100%;
+}
+
+.book-card > .image {
+    -webkit-box-flex: 0;
+    -ms-flex: 0 0 50%;
+    flex: 0 0 50%;
+    position: relative;
+    overflow: hidden;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    padding-top: 70px;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+}
+
+.book-card > .image:before {
+    -webkit-filter: blur(10px);
+    filter: blur(10px);
+    content: '';
+    background: cyan;
+    background-size: cover;
+    display: block;
+    width: 120%;
+    height: 120%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    z-index: 1;
+}
+
+.book-card > .image > .content {
+    z-index: 2;
+    position: relative;
+}
+
+.book-card > .text {
+    background-color: lightcyan;
+    -webkit-box-flex: 0;
+    -ms-flex: 0 0 50%;
+    flex: 0 0 50%;
+}
+
+.book-text {
+    padding: 32px;
+
+}
+
+.book-text > .genre {
+    color: black;
+    display: block;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 32px;
+}
+
+.book-text > .heading {
+    color: #0a2832;
+    font-family: 'Arbutus Slab', serif;
+    font-size: 25px;
+    font-weight: 600;
+    margin-bottom: 3px;
+    line-height: 1.3;
+}
+
+.book-text > .author {
+    color: black;
+    font-family: 'Crimson Text', serif;
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 1.5;
+    margin-bottom: 3px;
+}
+
+.book-text > .rating {
+    color: black;
+    margin-bottom: 30px;
+}
+
+.book-text > .description {
+    color: black;
+    line-height: 2;
+    font-family: 'Lato', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.footer {
+    margin-top: 50px;
+
+}
+
+.button-book {
+    background-color: #10d1a5;
+    color: #ffffff;
+    font-family: 'Lato', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 16px 20px;
+    letter-spacing: 0.5px;
+    align-text: center;
+    border-radius: 3px;
+}
+
+.button:hover {
+    background-color: #efefef;
+    color: #10d1a5;
+    cursor: pointer;
+}
+
+.book-meta {
+    color: black;
+    position: absolute;
+    bottom: 35px;
+    z-index: 2;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    font-family: 'Crimson Text', serif;
+    font-size: 20px;
+    width: 245px;
+    height:454px;
+}
+
+.meta-item {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-orient: horizontal;
+    -webkit-box-direction: reverse;
+    -ms-flex-direction: row-reverse;
+    flex-direction: row-reverse;
+}
+
+.meta-item:not(:last-child) {
+    margin-right: 16px;
+}
+
+.meta-item > .icon {
+    font-size: 14px;
+    margin-right: 8px;
+}
+
+.book-cover {
+    width: 90%;
+    margin: 0 auto;
+    padding-bottom: 12px;
+}
+
+.book-cover > img {
+    width: 100%;
+    height: auto;
+}
+
+.book-description {
+    color: #40d3b4;
+    font-family: 'Crimson Text', serif;
+    font-size: 14px;
+}
+
+.book-detail{
+    margin-top:20px;
+}
+
+#like-btn{
+    margin-left: 10px;
 }

@@ -1,8 +1,10 @@
+import os
+
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.models import User
+from django.conf import settings
 from django.db.models import Avg
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import HttpResponseRedirect, JsonResponse, HttpResponse, Http404
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.views.decorators.http import require_http_methods
@@ -56,7 +58,7 @@ class DocumentUpdateView(LoginRequiredMixin, UpdateView):
         return super().render_to_response(context, **response_kwargs)
 
     def get_success_url(self):
-        return reverse('document_detail', kwargs={'id': self.get_object().id})
+        return reverse('document_detail', kwargs={'pk': self.get_object().id})
 
 
 class DeleteDocumentView(LoginRequiredMixin, DeleteView):
@@ -123,3 +125,13 @@ def rate(request):
         'number_of_votes': document.userratedocument_set.all().count()
     }
     return JsonResponse(data=data)
+
+
+def download(request, path):
+    file_path = os.path.join(settings.MEDIA_ROOT, path)
+    if os.path.exists(file_path):
+        with open(file_path, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/pdf")
+            response['Content-Disposition'] = 'inline; filename=' + os.path.basename(file_path)
+            return response
+    raise Http404

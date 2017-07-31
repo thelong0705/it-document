@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.conf.urls import url, include
 from . import views
 
@@ -10,4 +11,5 @@ urlpatterns = [
     url(r'^like/(?P<pk>\d+)$', views.like, name='document_like'),
     url(r'^rate/$', views.rate, name='document_rate'),
     url(r'^api/', include(views.router.urls, namespace='api')),
+    url(r'^download/(?P<path>.*)$', views.download, name='download')
 ]

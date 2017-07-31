@@ -6,28 +6,43 @@
         <span class="glyphicon glyphicon-star star" id="star-4"></span>
         <span class="glyphicon glyphicon-star star" id="star-5"></span>
         {% if rated == -1 %}
-            <span class="score" >{{ 0 }}</span>/5
+            <span class="score">{{ 0 }}</span>/5
         {% else %}
-            <span class="score" >{{ rated }}</span>/5
+            <span class="score">{{ rated }}</span>/5
         {% endif %}
 
     </p>
     {% if rated is None %}
-        <p><a class="btn-primary btn rate-btn" >Rate this!</a></p>
+        <a class="btn-primary btn rate-btn">Rate this!</a>
     {% else %}
-        <p><a class="btn-primary btn rate-btn">Edit rate!</a></p>
+        <a class="btn-primary btn rate-btn">Edit rate!</a>
+    {% endif %}
+    {% if user.is_authenticated %}
+        {% if user in document.liked_by.all %}
+            <a data-href="{% url 'document_like' document.id %}" class="btn btn-primary" id="like-btn">Unlike</a>
+        {% else %}
+            <a data-href="{% url 'document_like' document.id %}" class="btn btn-primary" id="like-btn"> Like</a>
+        {% endif %}
+    {% endif %}
+    {% if user == document.posted_user %}
+        <a href="{% url 'document_update' document.id %}" class="btn btn-primary"
+           style="margin-left:10px;"> <span class="glyphicon glyphicon-edit"></span>Edit</a>
+        <a href="{% url 'document_delete' document.id %}" class="btn btn-primary"
+           style="margin-left:10px;"> <span
+                class="glyphicon glyphicon-remove"></span>Delete</a>
     {% endif %}
     <script>
         $(document).ready(function () {
-            let score= parseInt($(`.score`).text());
+            let score = parseInt($(`.score`).text());
             for (let i = 1; i <= score; i++)
-                    $(`#star-${i}`).css("color", colorRed);
+                $(`#star-${i}`).css("color", colorRed);
         })
     </script>
     <script>
         const NUM_STARS = 5;
         const colorRed = `rgb(255, 0, 0)`;
         const colorBlack = `rgb(51, 51, 51)`;
+
         function changeColor(starId) {
             let star = $(`#star-${starId}`);
             if (star.css("color") === colorBlack) {
@@ -35,7 +50,7 @@
                 for (let i = 1; i <= starId; i++)
                     $(`#star-${i}`).css("color", colorRed);
             } else {
-                 $(`.score`).text(`${starId-1   }`);
+                $(`.score`).text(`${starId - 1   }`);
                 for (let i = starId; i <= NUM_STARS; i++)
                     $(`#star-${i}`).css("color", colorBlack);
             }
@@ -49,18 +64,18 @@
     </script>
     <script>
         $(`.rate-btn`).click(function () {
-            let score= parseInt($(`.score`).text());
+            let score = parseInt($(`.score`).text());
             let api_url = `/documents/rate/`;
             $.ajax({
                 url: api_url,
                 method: "POST",
                 data: {
-                        'csrfmiddlewaretoken': `{{ csrf_token }}`,
-                        'rating': score,
-                        'document':{{ document.id }},
-                        'user': {{ user.id}},
+                    'csrfmiddlewaretoken': `{{ csrf_token }}`,
+                    'rating': score,
+                    'document':{{ document.id }},
+                    'user': {{ user.id}},
                 },
-                success:function (data) {
+                success: function (data) {
                     console.log(`heh`);
                     $(`.rating-text`).text(`${data.rate_avg} Rating/ ${data.number_of_votes} Votes`);
                     $(`.rate-btn`).text(`Edit rate!`);

@@ -15,7 +15,7 @@ class CategoryDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         document_list = Document.objects.filter(topic__id=self.object.id).order_by('submit_date')
-        paginator = Paginator(document_list, 1)
+        paginator = Paginator(document_list, 5)
         page = self.request.GET.get('page')
         try:
             document_list = paginator.page(page)

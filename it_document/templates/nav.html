@@ -1,0 +1,38 @@
+{% load category_template_tags %}
+<nav class="navbar " role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="{% url 'index' %}">Homepage</a>
+        </div>
+        <ul class="nav navbar-nav">
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                   aria-expanded="false">Popular Categories<span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                    {% get_popular_categories %}
+                    <li role="separator" class="divider"></li>
+                    <li><a href="{% url 'category_list' %}">All categories</a></li>
+                </ul>
+            </li>
+        </ul>
+        <div class="navbar-form navbar-left">
+            <div class="form-group">
+                <div class="ui-widget">
+                    <input id="tags-nav" class="form-control" onkeypress="searchNav();" placeholder="Search">
+                </div>
+            </div>
+            <button class="btn btn-primary" onclick="search_by_click_nav()">
+                <span class="glyphicon glyphicon-search"></span>
+            </button>
+        </div>
+        <ul class="nav navbar-nav navbar-right">
+            {% if user.is_authenticated %}
+                <li><a href="{% url 'user_detail' user.userprofileinfo.id %}">Your Profile</a></li>
+                <li><a href="{% url 'logout' %}">Logout</a></li>
+            {% else %}
+                <li><a href="{% url 'register' %}">Register</a></li>
+                <li><a href="{% url 'login' %}">Login</a></li>
+            {% endif %}
+        </ul>
+    </div>
+</nav>

@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy, reverse
@@ -38,3 +38,17 @@ class UpdateUserProfile(UpdateView):
 
 class NoPermissionView(TemplateView):
     template_name = 'accounts/no_permission.html'
+
+
+def user_login(request):
+    if request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('index'))
+    if request.method != 'POST':
+        return render(request, 'accounts/login.html', {'is_error': False})
+    email = request.POST.get('username')
+    password = request.POST.get('password')
+    user = authenticate(username=email, password=password)
+    if user is None:
+        return render(request, 'accounts/login.html', {'is_error': True})
+    login(request, user)
+    return HttpResponseRedirect(reverse('index'))

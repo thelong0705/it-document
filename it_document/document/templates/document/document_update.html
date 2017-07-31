@@ -1,13 +1,61 @@
-{% extends "base.html" %}
-{% load bootstrap3 %}
-{% load staticfiles %}
-{% block content %}
-    <div class="container">
-        <form method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            <h1>Update Document</h1>
-            {% bootstrap_form form %}
-            <input type="submit" value="Update">
-        </form>
+{% extends "base.html" %}{% load bootstrap3 %}{% load staticfiles %}
+
+{% block form %}
+    <div class="jumbotron jumbotron-billboard center-in-jumbotron jumbotron-index" style="margin-bottom: 0">
+        <div class="img"></div>
+        <div class="container">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <h1>Update Document</h1>
+                {% bootstrap_form form %}
+                <div class="form-group">
+                    <label class="control-label" for="other">You can specify a new category here:</label>
+                    <div class="row">
+                        <div class="col-md-10">
+                            <input type="text" maxlength="50" class="form-control" id="add-cat-input">
+                        </div>
+                        <div class="col-md-1">
+                            <a id="add-cat-btn" class="btn btn-primary" data-href="{% csrf_token %}"
+                               style="margin-left:40px "> <span class="glyphicon glyphicon-plus"></span>Add Category</a>
+                        </div>
+                    </div>
+                </div>
+                <h4>Notes: Fields with * are required</h4>
+                <input type="submit" value="Update" class="btn-primary btn">
+            </form>
+        </div>
     </div>
+    <script>
+        $(document).ready(function () {
+            $("#add-cat-btn").click(function (e) {
+                e.preventDefault();
+                let name = $("#add-cat-input").val();
+                let api_url = `/categories/ajax/add-cat/`;
+                $.ajax({
+                    url: api_url,
+                    method: "POST",
+                    data: {
+                        'csrfmiddlewaretoken': `{{ csrf_token }}`,
+                        'name': name,
+                    },
+                    success: function (data) {
+                        if (data.created) {
+                            $('#category-choice').append($('<option>', {
+                                value: data.pk,
+                                text: name
+                            }));
+                            $("label[for='other']").text("Created successfully now you can choose from options above");
+                            $("#add-cat-input").val("");
+                        }
+                        else {
+                            $("label[for='other']").text("Category is already exist")
+                        }
+                    },
+                    error: function (error) {
+                        $("label[for='other']").text("You have to specify a new category before adding it")
+                    }
+                })
+            });
+        });
+    </script>
 {% endblock %}

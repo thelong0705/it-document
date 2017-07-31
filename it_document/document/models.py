@@ -6,6 +6,15 @@ from django.db.models import Avg
 from category.models import Category
 
 
+def validate_file_extension(value):
+    import os
+    from django.core.exceptions import ValidationError
+    ext = os.path.splitext(value.name)[1]
+    valid_extensions = ['.pdf', ]
+    if not ext.lower() in valid_extensions:
+        raise ValidationError(u'Unsupported file extension.')
+
+
 class Level(models.Model):
     name = models.CharField(max_length=200, unique=True)
 
@@ -21,7 +30,8 @@ class Document(models.Model):
     submit_date = models.DateField(auto_now_add=True)
     edited_date = models.DateField(auto_now=True)
     link = models.URLField(null=True, blank=True)
-    file = models.FileField(null=True, blank=True)
+    file = models.FileField(null=True, blank=True, upload_to='document_files',
+                            validators=[validate_file_extension])
     image = models.ImageField(upload_to='document_images', default='/document_images/question_mark.jpg')
     review = models.TextField()
     number_of_likes = models.PositiveIntegerField(default=0)
@@ -59,3 +69,6 @@ class UserRateDocument(models.Model):
 
     class Meta:
         unique_together = ('user', 'document')
+
+
+

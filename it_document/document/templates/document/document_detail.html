@@ -1,94 +1,90 @@
-{% extends 'base.html' %}{% load document_template_tags %}{% load bootstrap3 %}
-{% block content %}
-    <div class="jumbotron">
-        <div class="row">
-            <div class="col-md-8">
-                <div class="media">
-                    <div class="media-left media-middle">
-                        <a href="#"> <img class="media-object document-image" src="{{ document.image.url }}"
-                                          alt="Document image"></a> <br/>
-                        {% if user == document.posted_user %}
-                            <a href="{% url 'document_update' document.id %}" class="btn btn-primary"
-                               style="float: left; width: 80px;"> <span class="glyphicon glyphicon-edit"></span>Edit</a>
-                            <a href="{% url 'document_delete' document.id %}" class="btn btn-primary"
-                               style="float: right; width: 80px;"> <span class="glyphicon glyphicon-remove"></span>Delete</a>
-                        {% endif %}
-                    </div>
-                    <div class="media-body">
-                        <div style="margin-left: 100px !important;">
-                            <h2 class="media-heading"><strong>{{ document|title }}</strong></h2>
-                            <p>Level:
-                                {% for lv in document.level.all %}
-                                    {{ lv }},
-                                {% endfor %}
-                            </p>
-                            <p>Category:
-                                {% for topic in document.topic.all %}
-                                    {{ topic }},
-                                {% endfor %}
-                            </p>
-                            <p>Link:<a href="{{ document.link }}"></a></p>
-                            <p>Author:<a href="{{ document.author }}"></a></p>
-                            <p>Posted by:{{ document.posted_user|title }}</p>
-                            <p>Review: {{ document.review }}</p>
+{% extends 'base.html' %}
+{% load document_template_tags %}
+{% load bootstrap3 %}
+{% load staticfiles %}
+{% block form %}
+    <div class="book-detail">
+        <div class="container">
+            <div class='book-card'>
+                <div class='image'>
+                    <div class='content'>
+                        <div class='book-cover'>
+                            <img src="{{ document.image.url }}">
                         </div>
                     </div>
+                    <ul class='book-meta'></ul>
                 </div>
-            </div>
-            <div class="col-md-4 media-right media-middle">
-                <h2 class="media-heading" style="visibility: hidden"><strong>a</strong></h2>
-                <p><span id="num_likes">{{ document.liked_by.count }}</span> Likes</p>
-                {% if user.is_authenticated %}
-                    {% if user in document.liked_by.all %}
-                        <p>
-                            <a data-href="{% url 'document_like' document.id %}" class="btn btn-primary" id="like-btn">Unlike</a>
-                        </p>
-                    {% else %}
-                        <p>
-                            <a data-href="{% url 'document_like' document.id %}" class="btn btn-primary" id="like-btn">
-                                Like</a>
-                        </p>
-                    {% endif %}
-                {% endif %}
-                {% if rating is None %}
-                    <p class="rating-text">0 votes</p>
-                {% else %}
-                    <p class="rating-text">{{ rating }} Rating/ {{ number_of_rate }} Votes</p>
-                {% endif %}
-                {% if user.is_authenticated %}
-                    {% if rated == -1 %}
-                        <p id="user-rating-text"> You have not rated this </p>
-                    {% else %}
-                        <p>You rated this:</p>
-                    {% endif %}
-                    {% include 'document/star.html' %}
-                {% endif %}
+                <div class='text book-text'>
+                    <div class='genre'>
+                        Category:
+                        {% for topic in document.topic.all %}
+                            {{ topic|title }},
+                        {% endfor %}
+                    </div>
+                    <h1 class='heading'>
+                        {{ document.title|title }} </h1>
+                    <div class='author'>
+                        posted by {{ document.posted_user|title }}
+                    </div>
+                    <div class='rating'>
+                        <span class="glyphicon glyphicon-star"></span>
+                        {% if rating is None %}
+                            <span class="rating-text">0 votes</span>
+                        {% else %}
+                            <span class="rating-text">{{ rating }} Rating/ {{ number_of_rate }} Votes</span>
+                        {% endif %}
+                        <br/> <span class="glyphicon glyphicon-thumbs-up"></span> <span
+                            id="num_likes">{{ document.liked_by.count }}</span> Likes
+                    </div>
 
+                    <article class='description'>
+                        Review: {{ document.review }}
+                        {% if not document.link is None %}
+                            <p>Link: {{ document.link|urlize }}</p>
+                        {% endif %}
+                    </article>
+                    {% if document.file %}
+                        <a href="{% url 'download' document.file %}"> <span
+                                class="glyphicon glyphicon-download-alt"></span> PDF file </a>
+                    {% endif %}
+                    <br/>
+                    <footer class='footer'>
+                        {% if user.is_authenticated %}
+                            {% if rated == -1 %}
+                                <p id="user-rating-text"> You have not rated this </p>
+                            {% else %}
+                                <p>You rated this:</p>
+                            {% endif %}
+                            {% include 'document/star.html' %}
+                        {% endif %}
+                    </footer>
+                </div>
             </div>
         </div>
     </div>
-    <h1>Comments</h1>
-    <hr>
-    {% if user.is_authenticated %}
-        <div class="media">
-            <div class="media-left">
-                <img class="media-object img-circle" src="{{ user.userprofileinfo.avatar.url }}" alt="User image"
-                     width="80px" height="80px">
-            </div>
-            <div class="media-body">
-                <div class="form-group">
-                    <h4 class="media-heading"><strong>{{ comment.user|title }}</strong></h4>
-                    <textarea class="form-control" rows="3" id="comment" onkeypress="comment();"
-                              placeholder="Press enter to insert comment shift-enter to make a new line..."></textarea>
+    <div class="container">
+        <h1>Comments</h1>
+        <hr>
+        {% if user.is_authenticated %}
+            <div class="media">
+                <div class="media-left">
+                    <img class="media-object img-circle" src="{{ user.userprofileinfo.avatar.url }}" alt="User image"
+                         width="80px" height="80px">
+                </div>
+                <div class="media-body">
+                    <div class="form-group">
+                        <h4 class="media-heading"><strong>{{ comment.user|title }}</strong></h4>
+                        <textarea class="form-control" rows="3" id="comment" onkeypress="comment();"
+                                  placeholder="Press enter to insert comment shift-enter to make a new line..."></textarea>
+                    </div>
                 </div>
             </div>
-        </div>
-    {% endif %}
-
-    {% get_comments document %}
-    <h1 id="recommend">Recommendations</h1>
-    <hr>
-    {% get_document_recommendations document %}
+        {% endif %}
+        {% get_comments document %}
+        <h1 id="recommend">Recommendations</h1>
+        <hr>
+        {% get_document_recommendations document %}
+    </div>
     <script>
         function comment() {
             let api_url = `/documents/api/comment/`;

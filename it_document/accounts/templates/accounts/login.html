@@ -1,10 +1,37 @@
-{% extends "base.html" %}{% load bootstrap3 %}{% load staticfiles %}
-{% block content %}
-
-    <form method="post" autocomplete="off">
-        {% csrf_token %}
-        {% bootstrap_form form %}
-        <input type="submit" class="btn btn-primary" value="Login">
-        <a href="{% url 'register'%}" class="btn btn-primary" id="register-btn">Register</a>
-    </form>
-{% endblock %}
+<!DOCTYPE html>
+{% load staticfiles %}
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Title</title>
+        <link rel="stylesheet" href="{% static 'login.css' %}">
+        <script src="http://code.jquery.com/jquery-3.1.1.js"
+                integrity="sha256-16cdPddA6VdVInumRGo6IbivbERE8p7CQR3HzTBuELA=" crossorigin="anonymous"></script>
+        <script src="{% static 'login.js' %}"></script>
+    </head>
+    <body>
+        <form method="post">
+            {% csrf_token %}
+            <div id="formWrapper">
+                <div id="form">
+                    <div class="form-item">
+                        <p class="formLabel">Username</p>
+                        <input type="text" name="username" id="email" class="form-style" autocomplete="on"/>
+                    </div>
+                    <div class="form-item">
+                        <p class="formLabel">Password</p>
+                        <input type="password" name="password" id="password" class="form-style"/>
+                    </div>
+                    <p><a href="{% url 'register' %}" ><small>Dont have an account? Register here</small></a></p>
+                    <div class="form-item">
+                        <p class="pull-left"><a href="{% url 'index' %}">
+                            <small>Back to homepage</small>
+                        </a></p>
+                        <input type="submit" class="login pull-right" value="Log In">
+                        <div class="clear-fix"></div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </body>
+</html>
