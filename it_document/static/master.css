@@ -254,7 +254,6 @@ figure.thumb {
 
 .footer {
     margin-top: 50px;
-
 }
 
 .button-book {
@@ -289,7 +288,7 @@ figure.thumb {
     font-family: 'Crimson Text', serif;
     font-size: 20px;
     width: 245px;
-    height:454px;
+    height: 454px;
 }
 
 .meta-item {
@@ -328,10 +327,92 @@ figure.thumb {
     font-size: 14px;
 }
 
-.book-detail{
-    margin-top:20px;
+.book-detail {
+    margin-top: 20px;
 }
 
-#like-btn{
+#like-btn {
     margin-left: 10px;
+}
+
+.title-pen {
+    color: #333;
+    font-family: "Coda", sans-serif;
+    text-align: center;
+}
+
+.title-pen span {
+    color: #55acee;
+}
+
+.user-profile {
+    width: 25em;
+    height: 11em;
+    background: #fff;
+    border-radius: .3em;
+}
+
+.user-profile .username {
+    margin: auto;
+    margin-top: -4.40em;
+    margin-left: 5.80em;
+    padding-top: 5px;
+    color: black;
+    font-size: 1.53em;
+    font-family: "Coda", sans-serif;
+    font-weight: bold;
+}
+
+.user-profile .bio {
+    margin: auto;
+    display: inline-block;
+    margin-left: 10.43em;
+    color: black;
+    font-size: .87em;
+    font-family: "varela round", sans-serif;
+}
+
+.user-profile > .description {
+    margin: auto;
+    margin-top: 1.35em;
+    margin-right: 4.43em;
+    width: 14em;
+    color: black;
+    font-size: .87em;
+    font-family: "varela round", sans-serif;
+}
+
+.user-profile > img.avatar {
+    padding: .7em;
+    margin-left: .3em;
+    margin-top: .3em;
+    height: 6.23em;
+    width: 6.23em;
+    border-radius: 18em;
+}
+
+.user-profile div.data {
+    padding-top:20px;
+    padding-left: 20px;
+    padding-right: 20px;
+    margin: 2em auto;
+    height: 5em;
+    background: #4eb6b6;
+    border-radius: 0 0 .3em .3em;
+}
+
+
+
+.user-profile .text-span {
+    font-family: "varela round", sans-serif;
+    color:  white;
+    white-space: nowrap;
+    font-size: 1.27em;
+    font-weight: bold;
+    margin-top: 5px;
+}
+
+
+.page-footer{
+    margin-bottom: 50px;
 }

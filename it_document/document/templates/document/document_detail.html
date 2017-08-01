@@ -31,7 +31,7 @@
                         {% if rating is None %}
                             <span class="rating-text">0 votes</span>
                         {% else %}
-                            <span class="rating-text">{{ rating }} Rating/ {{ number_of_rate }} Votes</span>
+                            <span class="rating-text">{{ rating|floatformat }} Rating/ {{ number_of_rate }} Votes</span>
                         {% endif %}
                         <br/> <span class="glyphicon glyphicon-thumbs-up"></span> <span
                             id="num_likes">{{ document.liked_by.count }}</span> Likes
@@ -101,6 +101,7 @@
                             'csrfmiddlewaretoken': '{{ csrf_token }}',
                         },
                         success: function (data) {
+                            content=content.replace(/&/g, '&amp;').replace(/</g, '&lt;');
                             $("#comment").val("");
                             $(`<div class="media">
                                <div class="media-left">

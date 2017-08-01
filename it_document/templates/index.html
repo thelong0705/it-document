@@ -1,4 +1,6 @@
-{% extends 'base.html' %}{% load staticfiles %}{% load document_template_tags %}
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% load document_template_tags %}
 {% block heading %}
     <div class="jumbotron jumbotron-billboard center-in-jumbotron jumbotron-index">
         <div class="img"></div>
@@ -32,4 +34,5 @@
     <h1>Top contributors</h1>
     <hr>
     {% get_top_user %}
+    <br/><br/>
 {% endblock %}

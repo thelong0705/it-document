@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-{% load staticfiles %}
+<!DOCTYPE html>{% load staticfiles %}
 <html lang="en">
     <head>
         <meta charset="UTF-8">
@@ -15,14 +14,20 @@
             <div id="formWrapper">
                 <div id="form">
                     <div class="form-item">
-                        <p class="formLabel">Username</p>
-                        <input type="text" name="username" id="email" class="form-style" autocomplete="on"/>
+                    <input type="hidden" name="next" value="{{ next }}" />
+                        {{ form.non_field_errors }}
+                        {{ form.username.errors }}
+                        <input type="text" name="username"
+                               value="{{ form.username.value|default_if_none:'' }}"
+                               id="email" class="form-style" autocomplete="on" placeholder="Username"/>
                     </div>
                     <div class="form-item">
-                        <p class="formLabel">Password</p>
-                        <input type="password" name="password" id="password" class="form-style"/>
+                        {{ form.password.errors }}
+                        <input type="password" name="password" id="password" class="form-style" placeholder="Password"/>
                     </div>
-                    <p><a href="{% url 'register' %}" ><small>Dont have an account? Register here</small></a></p>
+                    <p><a href="{% url 'register' %}">
+                        <small>Dont have an account? Register here</small>
+                    </a></p>
                     <div class="form-item">
                         <p class="pull-left"><a href="{% url 'index' %}">
                             <small>Back to homepage</small>

@@ -82,3 +82,10 @@ def get_top_user():
     return {
         'users': User.objects.annotate(num_posts=Count('document')).order_by('-num_posts')[:6]
     }
+
+
+@register.inclusion_tag('document/top_likes.html')
+def get_documents_by_user(user):
+    return {
+        'documents': Document.objects.filter(posted_user=user)[:6]
+    }

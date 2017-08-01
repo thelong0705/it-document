@@ -1,5 +1,10 @@
 {% load staticfiles %}
 <div class="row">
+    {% if documents.count == 0 %}
+        <div class="container">
+            <h1><strong>No documents found</strong></h1>
+        </div>
+    {% endif %}
     {% for doc in documents %}
         <div class="col-md-2">
             <div class="card" onclick="location.href='{% url 'document_detail' doc.id %}'">
@@ -17,7 +22,7 @@
                     <p class="author">
                         <span class="glyphicon glyphicon-thumbs-up"></span> {{ doc.liked_by.count }}
                         <span class="glyphicon glyphicon-star" style="margin-left: 30px"></span>
-                        {{ doc.rating }}({{ doc.userratedocument_set.all.count }} votes)
+                        {{ doc.rating|floatformat }}({{ doc.userratedocument_set.all.count }} votes)
                     </p>
                 </figure>
             </div>

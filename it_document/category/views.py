@@ -6,6 +6,8 @@ from document.models import Document
 from .models import Category
 from rest_framework import status
 
+DOCUMENT_PER_PAGE = 5
+
 
 class CategoryDetailView(DetailView):
     model = Category
@@ -15,7 +17,7 @@ class CategoryDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         document_list = Document.objects.filter(topic__id=self.object.id).order_by('submit_date')
-        paginator = Paginator(document_list, 5)
+        paginator = Paginator(document_list, DOCUMENT_PER_PAGE)
         page = self.request.GET.get('page')
         try:
             document_list = paginator.page(page)

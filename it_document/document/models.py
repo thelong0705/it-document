@@ -2,6 +2,8 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db.models import Avg
+from django.db.models.signals import post_save, post_delete
+from django.dispatch import receiver
 
 from category.models import Category
 
@@ -56,7 +58,7 @@ class Comment(models.Model):
     user = models.ForeignKey(User)
     document = models.ForeignKey(Document)
     content = models.TextField()
-    submit_date = models.DateField(auto_now_add=True)
+    submit_date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.content
@@ -71,4 +73,34 @@ class UserRateDocument(models.Model):
         unique_together = ('user', 'document')
 
 
+class ActivityLog(models.Model):
+    user = models.ForeignKey(User)
+    document = models.ForeignKey(Document, blank=True, null=True)
+    verb = models.CharField(max_length=100)
+    time = models.DateTimeField(auto_now_add=True, blank=True, null=True, editable=True)
+    content = models.TextField(blank=True, null=True)
 
+
+@receiver(post_save, sender=Comment)
+def create_comment_handler(sender, instance, **kwargs):
+    user = instance.user
+    document = instance.document
+    activity = ActivityLog(user=user, document=document, verb='commented')
+    activity.save()
+
+
+@receiver(post_save, sender=Document)
+def document_save_handler(sender, instance, created, **kwargs):
+    user = instance.posted_user
+    document = instance
+    if created:
+        activity = ActivityLog(user=user, document=document, verb='created')
+        activity.save()
+
+
+@receiver(post_delete, sender=Document)
+def document_delete_handler(sender, instance, **kwargs):
+    user = instance.posted_user
+    title = instance.title
+    activity = ActivityLog(user=user, verb='deleted', content=title)
+    activity.save()

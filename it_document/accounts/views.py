@@ -3,7 +3,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy, reverse
 from django.views.generic import CreateView, DetailView, UpdateView, TemplateView
-from accounts.forms import UserCreateForm
+from accounts.forms import UserCreateForm, UserLoginForm
 from .models import UserProfileInfo
 
 
@@ -43,12 +43,19 @@ class NoPermissionView(TemplateView):
 def user_login(request):
     if request.user.is_authenticated:
         return HttpResponseRedirect(reverse('index'))
+    form = UserLoginForm()
     if request.method != 'POST':
-        return render(request, 'accounts/login.html', {'is_error': False})
-    email = request.POST.get('username')
-    password = request.POST.get('password')
-    user = authenticate(username=email, password=password)
-    if user is None:
-        return render(request, 'accounts/login.html', {'is_error': True})
-    login(request, user)
+        return render(request, 'accounts/login.html', {'form': form})
+
+    form = UserLoginForm(request.POST)
+    if form.is_valid():
+        username = form.cleaned_data['username']
+        password = form.cleaned_data['password']
+        user = authenticate(username=username, password=password)
+        if user is None:
+            form.add_error(None, "Username or Password is incorrect!")
+            return render(request, 'accounts/login.html', {'form': form})
+        login(request, user)
+    else:
+        return render(request, 'accounts/login.html', {'form': form})
     return HttpResponseRedirect(reverse('index'))

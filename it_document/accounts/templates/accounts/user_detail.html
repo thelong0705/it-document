@@ -1,19 +1,42 @@
-{% extends "base.html" %}{% load bootstrap3 %}{% load staticfiles %}
+{% extends "base.html" %}
+{% load bootstrap3 %}
+{% load staticfiles %}
+{% load account_template_tags %}
+{% load document_template_tags %}
 {% block content %}
-    <div class="jumbotron">
-        <img src="{{ MEDIA_URL }}{{ user_profile.avatar }}" class="media-object img-circle avatar">
+    <div class="jumbotron" style="margin-top: 20px">
+        <div class="row">
+            <div class="col-lg-5">
+                <div class="user-profile">
+                    <img class="avatar" src="{{ user_profile.avatar.url }}" alt="avatar"/>
+                    <div class="username">{{ user_profile.user.username|capfirst }}</div>
+                    <div class="bio">
+                        {{ user_profile.user.email }}
+                    </div>
+                    <div class="description">
+                        Biography:
+                        {% if not user_profile.biography %}
+                            No information
+                        {% endif %}
+                        {{ user_profile.biography }}
+                    </div>
+                    <div class="data">
+                        <span class="text-span">{{ user_profile.user.document_set.count }} posts</span> <a
+                            href="{% url 'update_user_detail' user_profile.id %}" class="btn btn-primary"
+                            style="float: right"> <span class="glyphicon glyphicon-edit"></span> Edit profile</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-7">
+                <p><strong>Recent activity</strong></p>
+                {% get_activity_log user_profile.user %}
+            </div>
+        </div>
     </div>
-    <div class="page-header">
-        <h1 style="display: inline"><strong>Username:{{ user_profile.user.username }}</strong></h1>
-        {% if user == user_profile.user %}
-        <a href="{% url 'update_user_detail' user_profile.id %}" class="btn btn-primary" style="float: right">
-            <span class="glyphicon glyphicon-edit" ></span> Edit profile</a>
-        {% endif %}
-        <br />
-    </div>
-    <h3>Email: {{ user_profile.user.email }}</h3>
-    <h3>Joined date: {{ user_profile.user.date_joined|date:"d M Y" }}</h3>
-    <h3>Biography: {{ user_profile.biography }}</h3>
+    <h1> Posted Documents </h1>
+    <hr/>
+    {% get_documents_by_user user_profile.user %}
+    <br/><br/>
 {% endblock %}
 
 

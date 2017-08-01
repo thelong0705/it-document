@@ -76,7 +76,6 @@
                     'user': {{ user.id}},
                 },
                 success: function (data) {
-                    console.log(`heh`);
                     $(`.rating-text`).text(`${data.rate_avg} Rating/ ${data.number_of_votes} Votes`);
                     $(`.rate-btn`).text(`Edit rate!`);
                     $(`#user-rating-text`).text(`You rated this`);

@@ -1,5 +1,4 @@
 import os
-
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.conf import settings
@@ -12,7 +11,7 @@ from django.views.generic import ListView, CreateView, TemplateView, DetailView,
 from rest_framework import authentication, permissions, status
 from rest_framework.generics import ListCreateAPIView
 from rest_framework.routers import DefaultRouter
-from .models import Document, Comment, UserRateDocument
+from .models import Document, Comment, UserRateDocument, ActivityLog
 from .forms import DocumentCreateForm
 from rest_framework import viewsets, serializers
 
@@ -57,6 +56,11 @@ class DocumentUpdateView(LoginRequiredMixin, UpdateView):
             return HttpResponseRedirect(reverse('no_permission'))
         return super().render_to_response(context, **response_kwargs)
 
+    def form_valid(self, form):
+        activity = ActivityLog(user=self.object.posted_user, document=self.object, verb='edited')
+        activity.save()
+        return super().form_valid(form)
+
     def get_success_url(self):
         return reverse('document_detail', kwargs={'pk': self.get_object().id})
 
@@ -95,10 +99,14 @@ def like(request, pk):
     document = get_object_or_404(Document, pk=pk)
     if user in document.liked_by.all():
         document.liked_by.remove(user)
+        activity = ActivityLog(user=user, document=document, verb='unliked')
+        activity.save()
         is_like = False
     else:
         document.liked_by.add(user)
         is_like = True
+        activity = ActivityLog(user=user, document=document, verb='liked')
+        activity.save()
     data = {
         "is_like": is_like,
         "num_likes": document.liked_by.count()
@@ -120,6 +128,13 @@ def rate(request):
         rating_obj.save()
     document.rating = document.userratedocument_set.all().aggregate(Avg('rating'))['rating__avg']
     document.save()
+    activity = ActivityLog(
+        user=request.user,
+        document=document,
+        verb='rated',
+        content='{} stars'.format(rating)
+    )
+    activity.save()
     data = {
         'rate_avg': document.userratedocument_set.all().aggregate(Avg('rating'))['rating__avg'],
         'number_of_votes': document.userratedocument_set.all().count()
@@ -132,6 +147,6 @@ def download(request, path):
     if os.path.exists(file_path):
         with open(file_path, 'rb') as fh:
             response = HttpResponse(fh.read(), content_type="application/pdf")
-            response['Content-Disposition'] = 'inline; filename=' + os.path.basename(file_path)
+            response['Content-Disposition'] = 'inline; filename={}'.format((os.path.basename(file_path)))
             return response
     raise Http404

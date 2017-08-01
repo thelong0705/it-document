@@ -9,3 +9,8 @@ class UserCreateForm(UserCreationForm):
         fields = ['username', 'email', 'password1', 'password2']
         model = User
 
+
+class UserLoginForm(forms.Form):
+    username = forms.CharField()
+    password = forms.CharField()
+
