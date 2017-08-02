@@ -88,6 +88,23 @@
     </div>
     <br/><br/>
     <script>
+        let entityMap = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;',
+            '/': '&#x2F;',
+            '`': '&#x60;',
+            '=': '&#x3D;'
+        };
+
+        function escapeHtml(string) {
+            return String(string).replace(/[&<>"'`=\/]/g, function fromEntityMap(s) {
+                return entityMap[s];
+            });
+        }
+
         function comment() {
             let api_url = `/documents/api/comment/`;
             if (window.event.keyCode === 13 && !event.shiftKey) {
@@ -103,7 +120,7 @@
                             'csrfmiddlewaretoken': '{{ csrf_token }}',
                         },
                         success: function (data) {
-                            content = content.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+                            content = escapeHtml(content);
                             $("#comment").val("");
                             $(`<div class="media">
                                <div class="media-left">

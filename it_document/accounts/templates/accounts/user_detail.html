@@ -1,31 +1,34 @@
-{% extends "base.html" %}
-{% load bootstrap3 %}
-{% load staticfiles %}
-{% load document_template_tags %}
+{% extends "base.html" %}{% load bootstrap3 %}{% load staticfiles %}{% load document_template_tags %}
+{% block ref %}
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+{% endblock %}
 {% block content %}
     <div class="jumbotron" style="margin-top: 20px">
         <div class="row">
             <div class="col-lg-5">
-                <div class="user-profile">
-                    <img class="avatar" src="{{ user_profile.avatar.url }}" alt="avatar"/>
-                    <div class="username">{{ user_profile.user.username|capfirst }}</div>
-                    <div class="bio">
-                        {{ user_profile.user.email }}
+                <div class="w3-card-4" style="width:100%">
+                    <header class="w3-container w3-white">
+                        <h3>{{ user_profile.user.username|capfirst }}</h3>
+                    </header>
+                    <div class="w3-container w3-white" style="padding-bottom:10px; ">
+                        <p>{{ user_profile.user.email }}</p>
+                        <hr>
+                        <img src="{{ user_profile.avatar.url }}" alt="Avatar" class="w3-left w3-circle w3-margin-right"
+                             style="width:60px">
+                        <p style="word-wrap: break-word;"> Biography:
+                            {% if not user_profile.biography %}
+                                No information
+                            {% endif %}
+                            {{ user_profile.biography }}</p><br>
                     </div>
-                    <div class="description">
-                        Biography:
-                        {% if not user_profile.biography %}
-                            No information
-                        {% endif %}
-                        {{ user_profile.biography }}
-                    </div>
-                    <div class="data">
-                        <span class="text-span">{{ user_profile.user.document_set.count }} posts</span>
-                        {% if user == user_profile.user %}
+                    <p class="w3-block w3-dark-grey" style="padding: 10px;">
+                        <span class="text-span glyphicon glyphicon-upload small"></span>
+                        {{ user_profile.user.document_set.count }} posts
+                         {% if user == user_profile.user %}
                             <a href="{% url 'update_user_detail' user_profile.id %}" class="btn btn-primary"
-                               style="float: right"> <span class="glyphicon glyphicon-edit"></span> Edit profile</a>
+                               style="float: right;"><span class="glyphicon glyphicon-edit"></span> Edit profile</a>
                         {% endif %}
-                    </div>
+                    </p>
                 </div>
             </div>
             <div class="col-lg-7">

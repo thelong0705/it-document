@@ -1,23 +1,25 @@
 {% load el_pagination_tags %}
 {% paginate 3 comments %}
-{% for comment in comments %}
-    <div class="media">
-        <div class="media-left">
-            <img class="media-object img-circle" src="{{ comment.user.userprofileinfo.avatar.url }}" alt="User image"
-                 width="80px" height="80px">
+<div style="margin-top: 15px">
+    {% for comment in comments %}
+        <div class="media">
+            <div class="media-left">
+                <img class="media-object img-circle" src="{{ comment.user.userprofileinfo.avatar.url }}"
+                     alt="User image" width="80px" height="80px">
+            </div>
+            <div class="media-body">
+                <h4 style="display: inline" class="media-heading"><strong>{{ comment.user|title }}</strong></h4>
+                at
+                {% if comment.submit_date %}
+                    {{ comment.submit_date|timesince }} ago
+                {% else %}
+                    2 days ago
+                {% endif %}
+                {{ comment.content|linebreaks }}
+            </div>
         </div>
-        <div class="media-body">
-            <h4 style="display: inline" class="media-heading"><strong>{{ comment.user|title }}</strong></h4>
-            at
-            {% if comment.submit_date %}
-                {{ comment.submit_date|timesince }} ago
-            {% else %}
-                2 days ago
-            {% endif %}
-            {{ comment.content|linebreaks }}
-        </div>
-    </div>
-{% endfor %}
-<div style="float: right">
-    {% show_pages %}
+    {% endfor %}
+</div>
+<div style="margin-top: 15px;">
+    {% show_more "Load more comments" %}
 </div>
