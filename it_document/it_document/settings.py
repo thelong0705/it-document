@@ -14,7 +14,8 @@ import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
+EL_PAGINATION_NEXT_LABEL = 'Next'
+EL_PAGINATION_PREVIOUS_LABEL = 'Back'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
@@ -25,7 +26,7 @@ SECRET_KEY = 'l83l2bi)i#($hmmf7^s3b8z!#*7w5=u=1csv@)smvlo$^c7c4q'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['thelong0705.pythonanywhere.com']
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -41,7 +42,8 @@ INSTALLED_APPS = [
     'category',
     'document',
     'bootstrap3',
-    'rest_framework'
+    'rest_framework',
+    'el_pagination',
 ]
 
 MIDDLEWARE = [

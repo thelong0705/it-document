@@ -14,6 +14,8 @@ from rest_framework.routers import DefaultRouter
 from .models import Document, Comment, UserRateDocument, ActivityLog
 from .forms import DocumentCreateForm
 from rest_framework import viewsets, serializers
+from el_pagination.decorators import page_template
+from el_pagination.views import AjaxListView
 
 
 class AddNewDocumentView(LoginRequiredMixin, CreateView):
@@ -33,6 +35,7 @@ class ThankYouView(TemplateView):
 class DocumentDetailView(DetailView):
     model = Document
     template_name = 'document/document_detail.html'
+    page_template = 'document/comment_list.html',
     context_object_name = 'document'
 
     def get_context_data(self, **kwargs):
@@ -43,7 +46,28 @@ class DocumentDetailView(DetailView):
             context['rated'] = self.object.userratedocument_set.get(user__username=self.request.user).rating
         except UserRateDocument.DoesNotExist:
             context['rated'] = -1
+        context['comments'] = Comment.objects.filter(document=self.object).order_by('-submit_date')
         return context
+
+
+@page_template('document/comment_list.html')
+def document_detail(request, pk, template='document/document_detail.html', extra_context=None):
+    document = Document.objects.get(pk=pk)
+    try:
+        rated = document.userratedocument_set.get(user__username=request.user).rating
+    except UserRateDocument.DoesNotExist:
+        rated = -1
+    context = {
+        'document': document,
+        'comments': Comment.objects.filter(document=document).order_by('-submit_date'),
+        'rating': document.userratedocument_set.all().aggregate(Avg('rating'))['rating__avg'],
+        'number_of_rate': document.userratedocument_set.all().count(),
+        'rated': rated
+    }
+
+    if extra_context is not None:
+        context.update(extra_context)
+    return render(request, template, context)
 
 
 class DocumentUpdateView(LoginRequiredMixin, UpdateView):
@@ -150,3 +174,4 @@ def download(request, path):
             response['Content-Disposition'] = 'inline; filename={}'.format((os.path.basename(file_path)))
             return response
     raise Http404
+

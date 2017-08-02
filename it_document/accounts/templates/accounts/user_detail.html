@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 {% load bootstrap3 %}
 {% load staticfiles %}
-{% load account_template_tags %}
 {% load document_template_tags %}
 {% block content %}
     <div class="jumbotron" style="margin-top: 20px">
@@ -21,15 +20,19 @@
                         {{ user_profile.biography }}
                     </div>
                     <div class="data">
-                        <span class="text-span">{{ user_profile.user.document_set.count }} posts</span> <a
-                            href="{% url 'update_user_detail' user_profile.id %}" class="btn btn-primary"
-                            style="float: right"> <span class="glyphicon glyphicon-edit"></span> Edit profile</a>
+                        <span class="text-span">{{ user_profile.user.document_set.count }} posts</span>
+                        {% if user == user_profile.user %}
+                            <a href="{% url 'update_user_detail' user_profile.id %}" class="btn btn-primary"
+                               style="float: right"> <span class="glyphicon glyphicon-edit"></span> Edit profile</a>
+                        {% endif %}
                     </div>
                 </div>
             </div>
             <div class="col-lg-7">
                 <p><strong>Recent activity</strong></p>
-                {% get_activity_log user_profile.user %}
+                <div class="endless_page_template ">
+                    {% include 'accounts/activity_log_page.html' %}
+                </div>
             </div>
         </div>
     </div>

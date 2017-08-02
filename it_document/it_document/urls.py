@@ -8,7 +8,7 @@ from . import views
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^$', views.IndexPage.as_view(), name='index'),
+    url(r'^$', views.entry_index, name='index'),
     url(r'^accounts/', include('accounts.urls')),
     url(r'^documents/', include('document.urls')),
     url(r'^categories/', include('category.urls')),

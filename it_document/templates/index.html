@@ -8,10 +8,8 @@
             <div class="row">
                 <div class="col-lg-12">
                     <div class="ui-widget">
-                        <input id="tags" onkeypress="search();"
-                               placeholder="Search for documents, categories, users">
-                        <button class="btn-primary btn btn-search"
-                                onclick="search_by_click();">
+                        <input id="tags" onkeypress="search();" placeholder="Search for documents, categories, users">
+                        <button class="btn-primary btn btn-search" onclick="search_by_click();">
                             <span class="glyphicon glyphicon-search" style="margin-top:5px;"></span>
                         </button>
                     </div>
@@ -23,13 +21,13 @@
     </div>
 {% endblock %}
 {% block content %}
-    <h1>Top likes</h1>
-    <hr>
-    {% get_top_likes_list %}
+    <div class="endless_page_template">
+        {% include 'document/top_6_likes.html' %}
+    </div>
     <br/>
-    <h1>Top rating</h1>
-    <hr>
-    {% get_top_rating_list %}
+    <div class="endless_page_template">
+        {% include 'document/top_6_rating.html' %}
+    </div>
     <br/>
     <h1>Top contributors</h1>
     <hr>

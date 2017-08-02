@@ -18,3 +18,4 @@ class DocumentCreateForm(ModelForm):
         self.fields['topic'].help_text = 'Use ctrl or command to select multiple fields'
         self.fields['review'].label = 'Review*'
         self.fields['topic'].widget.attrs = {'id': 'category-choice'}
+        self.fields['file'].label = 'File (pdf only)'

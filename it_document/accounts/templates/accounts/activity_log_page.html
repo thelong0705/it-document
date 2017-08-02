@@ -1,0 +1,19 @@
+{% load el_pagination_tags %}
+{% paginate 4 logs %}
+{% if logs.count == 0 %}
+    <p> No activity found </p>
+{% endif %}
+{% for log in logs %}
+    <p>{{ log.user.username|capfirst }} {{ log.verb }}
+        {% if log.document %}
+            <a href="{% url 'document_detail' log.document.id %}">{{ log.document.title|title }}</a>
+        {% endif %}
+        {% if log.content %}
+            {{ log.content }}
+        {% endif %}
+        at {{ log.time|time }}
+    </p>
+{% endfor %}
+<div style="float: right;">
+    {% show_pages %}
+</div>

@@ -3,7 +3,10 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy, reverse
 from django.views.generic import CreateView, DetailView, UpdateView, TemplateView
+from el_pagination.decorators import page_template
+
 from accounts.forms import UserCreateForm, UserLoginForm
+from document.models import ActivityLog
 from .models import UserProfileInfo
 
 
@@ -59,3 +62,15 @@ def user_login(request):
     else:
         return render(request, 'accounts/login.html', {'form': form})
     return HttpResponseRedirect(reverse('index'))
+
+
+@page_template('accounts/activity_log_page.html')
+def user_detail(request, pk, template='accounts/user_detail.html', extra_context=None):
+    user_profile = UserProfileInfo.objects.get(pk=pk)
+    context = {
+        'user_profile': user_profile,
+        'logs': ActivityLog.objects.filter(user=user_profile.user).order_by('-time')
+    }
+    if extra_context is not None:
+        context.update(extra_context)
+    return render(request, template, context)

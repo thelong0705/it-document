@@ -47,4 +47,3 @@ function search_by_click_nav() {
     if (content !== null && content !== ``)
         window.location.href = `/search/${content}`;
 }
-

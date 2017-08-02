@@ -1,0 +1,21 @@
+{% load el_pagination_tags %}
+{% paginate 6 documents %}
+{% for doc in documents %}
+{% endfor %}
+{% get_pages %}
+
+<h1>Top likes <span class="index-span">{{ pages.previous }} {{ pages.next }}</span></h1>
+<hr>
+<div class="row">
+    {% if documents.count == 0 %}
+        <div class="container">
+            <h1><strong>No documents found</strong></h1>
+        </div>
+    {% endif %}
+    {% paginate 6 documents %}
+    {% for doc in documents %}
+        {% include 'document/document.html' %}
+    {% endfor %}
+</div>
+
+

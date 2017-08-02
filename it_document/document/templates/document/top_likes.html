@@ -2,31 +2,11 @@
 <div class="row">
     {% if documents.count == 0 %}
         <div class="container">
-            <h1><strong>No documents found</strong></h1>
+            <h4><strong>No documents found</strong></h4>
         </div>
     {% endif %}
     {% for doc in documents %}
-        <div class="col-md-2">
-            <div class="card" onclick="location.href='{% url 'document_detail' doc.id %}'">
-                <figure class="thumb" style="display: inline-block">
-                    <div class="cover">
-                        <img src="{{ doc.image.url }}"/>
-                    </div>
-                    <h2 class="overflow ellipsis">{{ doc|title }}</h2>
-                    <p class="author overflow ellipsis">
-                        Category:
-                        {% for topic in doc.topic.all %}
-                            {{ topic }},
-                        {% endfor %}
-                    </p>
-                    <p class="author">
-                        <span class="glyphicon glyphicon-thumbs-up"></span> {{ doc.liked_by.count }}
-                        <span class="glyphicon glyphicon-star" style="margin-left: 30px"></span>
-                        {{ doc.rating|floatformat }}({{ doc.userratedocument_set.all.count }} votes)
-                    </p>
-                </figure>
-            </div>
-        </div>
+        {% include 'document/document.html' %}
     {% endfor %}
 </div>
 

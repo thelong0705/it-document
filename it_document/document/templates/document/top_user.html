@@ -2,12 +2,12 @@
 <div class="row">
     {% if users.count == 0 %}
         <div class="container">
-            <h1><strong>No users found</strong></h1>
+            <h4><strong>No users found</strong></h4>
         </div>
     {% endif %}
     {% for person in users %}
         <div class="col-md-2">
-            <div class="card" onclick="location.href='{% url 'user_detail' person.id %}'">
+            <div class="card" onclick="location.href='{% url 'user_detail' person.userprofileinfo.id %}'">
                 <figure class="thumb" style="text-align: center">
                     <div class="user-cover">
                         <img src="{{ person.userprofileinfo.avatar.url }}" class="img-circle"/>

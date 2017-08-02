@@ -1,10 +1,10 @@
 {% extends 'base.html' %}
 {% load staticfiles %}
-{% load document_template_tags %}
 {% block content %}
-    {% for category in category_list %}
-        <h1><a href="{% url 'category_detail' category.id %}">{{ category|title }}</a></h1>
-        <hr>
-        {% get_top_document_in_category category %}
-    {% endfor %}
+    <div class="jumbotron" style="margin-top: 20px;">
+        <h1>All categories</h1>
+    </div>
+    <div class="endless_page_template container">
+        {% include 'category/category_page.html' %}
+    </div>
 {% endblock %}

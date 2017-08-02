@@ -38,13 +38,6 @@ def get_document_recommendations(document):
     }
 
 
-@register.inclusion_tag('document/comments.html')
-def get_comments(document):
-    return {
-        'comments': Comment.objects.filter(document=document)
-    }
-
-
 @register.inclusion_tag('document/top_likes.html')
 def get_document_in_category(category):
     return {
@@ -59,7 +52,7 @@ def get_top_document_in_category(category):
             topic__id__contains=category.id
         ).annotate(
             num_likes=Count('liked_by')
-        ).order_by('-num_likes')[:5]
+        ).order_by('-num_likes')[:6]
     }
 
 

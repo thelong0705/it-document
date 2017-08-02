@@ -1,7 +1,4 @@
-{% extends 'base.html' %}
-{% load document_template_tags %}
-{% load bootstrap3 %}
-{% load staticfiles %}
+{% extends 'base.html' %}{% load document_template_tags %}{% load bootstrap3 %}{% load staticfiles %}
 {% block form %}
     <div class="book-detail">
         <div class="container">
@@ -66,7 +63,7 @@
         <h1>Comments</h1>
         <hr>
         {% if user.is_authenticated %}
-            <div class="media">
+            <div class="media" id="comment-box">
                 <div class="media-left">
                     <img class="media-object img-circle" src="{{ user.userprofileinfo.avatar.url }}" alt="User image"
                          width="80px" height="80px">
@@ -80,11 +77,16 @@
                 </div>
             </div>
         {% endif %}
-        {% get_comments document %}
+    </div>
+    <div class="endless_page_template container">
+        {% include 'document/comment_list.html' %}
+    </div>
+    <div class="container">
         <h1 id="recommend">Recommendations</h1>
         <hr>
         {% get_document_recommendations document %}
     </div>
+    <br/><br/>
     <script>
         function comment() {
             let api_url = `/documents/api/comment/`;
@@ -101,7 +103,7 @@
                             'csrfmiddlewaretoken': '{{ csrf_token }}',
                         },
                         success: function (data) {
-                            content=content.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+                            content = content.replace(/&/g, '&amp;').replace(/</g, '&lt;');
                             $("#comment").val("");
                             $(`<div class="media">
                                <div class="media-left">
@@ -109,11 +111,12 @@
                                        alt="User image" width="80px" height="80px">
                                 </div>
                                 <div class="media-body">
-                                    <h4 class="media-heading"><strong>{{ user|title }}</strong></h4>
+                                    <h4 style="display: inline" class="media-heading"><strong>{{ user|title }}</strong></h4>
+                                    a second ago </br>
                                     <span style="white-space: pre-wrap;">${content}</span>
                                 </div>
                              </div>`)
-                                .insertBefore("#recommend");
+                                .insertAfter("#comment-box");
                         },
                         error: function (error) {
                         }

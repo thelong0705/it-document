@@ -80,6 +80,9 @@ class ActivityLog(models.Model):
     time = models.DateTimeField(auto_now_add=True, blank=True, null=True, editable=True)
     content = models.TextField(blank=True, null=True)
 
+    def __str__(self):
+        return self.verb
+
 
 @receiver(post_save, sender=Comment)
 def create_comment_handler(sender, instance, **kwargs):
