@@ -6,7 +6,9 @@ nav {
     width: 150px;
     height: 150px;
 }
-
+.card{
+    margin-top: 20px;
+}
 .card:hover {
     cursor: pointer;
     box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
@@ -329,9 +331,7 @@ figure.thumb {
     margin-top: 20px;
 }
 
-#like-btn {
-    margin-left: 10px;
-}
+
 
 
 .text-span {
@@ -351,4 +351,33 @@ figure.thumb {
     padding-top: 10px;
 }
 
+#selector{
+    width: auto;
+}
 
+.rating-stars ul {
+  list-style-type:none;
+  padding:0;
+
+  -moz-user-select:none;
+  -webkit-user-select:none;
+}
+.rating-stars ul > li.star {
+  display:inline-block;
+}
+
+/* Idle State of the stars */
+.rating-stars ul > li.star > i.fa {
+  font-size:2.5em; /* Change the size of the stars */
+  color:#ccc; /* Color on idle state */
+}
+
+/* Hover state of the stars */
+.rating-stars ul > li.star.hover > i.fa {
+  color:#FFCC36;
+}
+
+/* Selected state of the stars */
+.rating-stars ul > li.star.selected > i.fa {
+  color:#FF912C;
+}

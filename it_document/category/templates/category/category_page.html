@@ -2,10 +2,10 @@
 {% load el_pagination_tags %}
 {% paginate 5 categories %}
 {% for category in categories %}
-    <h1><a href="{% url 'category_detail' category.id %}">{{ category|title }}</a></h1>
+    <h1><a href="{% url 'category_detail' category.id  %}">{{ category|title }}</a></h1>
     <hr>
     {% get_top_document_in_category category %}
 {% endfor %}
-<div style="float: right; margin-top: 50px; margin-bottom: 20px;">
+<div style="margin-top: 50px; margin-bottom: 20px;">
     {% show_pages %}
 </div>

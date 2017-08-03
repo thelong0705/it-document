@@ -53,6 +53,7 @@ class DocumentDetailView(DetailView):
 @page_template('document/comment_list.html')
 def document_detail(request, pk, template='document/document_detail.html', extra_context=None):
     document = Document.objects.get(pk=pk)
+    liked = document.liked_by.all().filter(id=request.user.id).exists()
     try:
         rated = document.userratedocument_set.get(user__username=request.user).rating
     except UserRateDocument.DoesNotExist:
@@ -62,7 +63,8 @@ def document_detail(request, pk, template='document/document_detail.html', extra
         'comments': Comment.objects.filter(document=document).order_by('-submit_date'),
         'rating': document.userratedocument_set.all().aggregate(Avg('rating'))['rating__avg'],
         'number_of_rate': document.userratedocument_set.all().count(),
-        'rated': rated
+        'rated': rated,
+        'liked':liked
     }
 
     if extra_context is not None:
@@ -150,8 +152,8 @@ def rate(request):
     if not created:
         rating_obj.rating = rating
         rating_obj.save()
-    document.rating = document.userratedocument_set.all().aggregate(Avg('rating'))['rating__avg']
-    document.save()
+    temp = Document.objects.filter(id=document_id).update(
+        rating=document.userratedocument_set.all().aggregate(Avg('rating'))['rating__avg'])
     activity = ActivityLog(
         user=request.user,
         document=document,
@@ -174,4 +176,3 @@ def download(request, path):
             response['Content-Disposition'] = 'inline; filename={}'.format((os.path.basename(file_path)))
             return response
     raise Http404
-

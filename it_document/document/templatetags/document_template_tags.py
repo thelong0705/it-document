@@ -52,7 +52,7 @@ def get_top_document_in_category(category):
             topic__id__contains=category.id
         ).annotate(
             num_likes=Count('liked_by')
-        ).order_by('-num_likes')[:6]
+        ).order_by('-num_likes', '-rating')[:6]
     }
 
 

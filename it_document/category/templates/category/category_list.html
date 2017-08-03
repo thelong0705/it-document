@@ -1,10 +1,19 @@
-{% extends 'base.html' %}
-{% load staticfiles %}
+{% extends 'base.html' %}{% load staticfiles %}
 {% block content %}
     <div class="jumbotron" style="margin-top: 20px;">
         <h1>All categories</h1>
+        <div style="margin-top: 25px;">
+            <label for="selector">Order by:</label> <select id="selector" onchange="location = this.value;">
+            <option value="?order=Alphabet">Alphabetical</option>
+            <option value="?order=Documents">Most documents</option>
+            <option value="?order=Latest">Latest</option>
+        </select>
+        </div>
     </div>
     <div class="endless_page_template container">
         {% include 'category/category_page.html' %}
     </div>
+    <script>
+        $("#selector").val(`{{ selected }}`);
+    </script>
 {% endblock %}

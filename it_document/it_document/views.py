@@ -24,12 +24,16 @@ def search(request, keyword):
 
 @page_template('document/top_6_likes.html')
 @page_template('document/top_6_rating.html', key='top_rating_page')
+@page_template('document/top_6_latest.html', key='latest')
 def entry_index(request, template='index.html', extra_context=None):
     context = {
         'documents': Document.objects.annotate(
             num_likes=Count('liked_by')
-        ).order_by('-num_likes')[:12],
-        'documents_top_rating': Document.objects.order_by('-rating')[:12],
+        ).order_by('-num_likes', '-rating')[:12],
+        'documents_top_rating': Document.objects.order_by('-rating').annotate(
+            num_likes=Count('liked_by')
+        ).order_by('-rating', '-num_likes')[:12],
+        'documents_latest': Document.objects.order_by('-submit_date')[:12]
     }
     if extra_context is not None:
         context.update(extra_context)

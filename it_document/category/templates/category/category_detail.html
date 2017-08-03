@@ -1,11 +1,10 @@
 {% extends 'base.html' %}
-{% load staticfiles %}
-{% load document_template_tags %}
+{% load staticfiles %}{% load document_template_tags %}
 {% block content %}
     <div class="jumbotron center-in-jumbotron" style="margin-top: 20px;">
         <h1>{{ category|title }}</h1>
     </div>
-    <div class="endless_page_template container">
+    <div class="endless_page_template">
         {% include 'category/list_documents_in_category.html' %}
     </div>
     <br/><br/>

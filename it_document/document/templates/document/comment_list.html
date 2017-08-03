@@ -1,5 +1,4 @@
-{% load el_pagination_tags %}
-{% paginate 3 comments %}
+{% load el_pagination_tags %}{% paginate 3 comments %}
 <div style="margin-top: 15px">
     {% for comment in comments %}
         <div class="media">
@@ -19,7 +18,7 @@
             </div>
         </div>
     {% endfor %}
-</div>
-<div style="margin-top: 15px;">
-    {% show_more "Load more comments" %}
+    <div style="margin-top: 15px;">
+        {% show_more "Load more comments" %}
+    </div>
 </div>

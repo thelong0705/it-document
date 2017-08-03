@@ -1,0 +1,19 @@
+{% load el_pagination_tags %}
+{% paginate 6 documents_latest using "latest" %}
+{% for doc in documents_latest  %}
+{% endfor %}
+{% get_pages %}
+
+<h1>Latest documents <span class='index-span'>{{ pages.previous }} {{ pages.next }}</span></h1>
+<hr>
+<div class="row">
+    {% if documents_latest.count == 0 %}
+        <div class="container">
+            <h1><strong>No documents found</strong></h1>
+        </div>
+    {% endif %}
+    {% paginate 6 documents_latest using "latest"  %}
+    {% for doc in documents_latest  %}
+        {% include 'document/document.html' %}
+    {% endfor %}
+</div>

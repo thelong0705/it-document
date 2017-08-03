@@ -1,4 +1,7 @@
 {% extends 'base.html' %}{% load document_template_tags %}{% load bootstrap3 %}{% load staticfiles %}
+{% block ref %}
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+{% endblock %}
 {% block form %}
     <div class="book-detail">
         <div class="container">
@@ -6,7 +9,8 @@
                 <div class='image'>
                     <div class='content'>
                         <div class='book-cover'>
-                            <img src="{{ document.image.url }}">
+                            <img src="{{ document.image.url }}"
+                                 style="max-width: 300px; max-height: 500px; margin-bottom: 50px;">
                         </div>
                     </div>
                     <ul class='book-meta'></ul>
@@ -45,14 +49,14 @@
                                 class="glyphicon glyphicon-download-alt"></span> PDF file </a>
                     {% endif %}
                     <br/>
-                    <footer class='footer'>
+                    <footer class="footer">
                         {% if user.is_authenticated %}
                             {% if rated == -1 %}
                                 <p id="user-rating-text"> You have not rated this </p>
                             {% else %}
                                 <p>You rated this:</p>
                             {% endif %}
-                            {% include 'document/star.html' %}
+                            {% include 'document/new_star.html' %}
                         {% endif %}
                     </footer>
                 </div>

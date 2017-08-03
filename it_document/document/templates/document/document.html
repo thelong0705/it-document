@@ -4,7 +4,7 @@
             <div class="cover">
                 <img src="{{ doc.image.url }}"/>
             </div>
-            <h2 class="overflow ellipsis">{{ doc|title }}</h2>
+            <h2 style="margin-top: 3px;" class="overflow ellipsis">{{ doc|title }}</h2>
             <p class="author overflow ellipsis">
                 Category:
                 {% for topic in doc.topic.all %}
