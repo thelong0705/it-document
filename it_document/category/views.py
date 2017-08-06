@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.db.models import Count
 from django.http import JsonResponse
 from django.shortcuts import render
@@ -20,8 +21,29 @@ def create_category(request):
 
 
 def get_all_category_api(request):
-    name_list = [cat.name for cat in Category.objects.all()]
-    return JsonResponse({'name_list': name_list}, status=status.HTTP_200_OK)
+    obj_list = []
+    for cat in Category.objects.all():
+        obj = {
+            'value': cat.name,
+            'url': '/categories/detail/{}'.format(cat.id),
+            'des': '(Category)'
+        }
+        obj_list.append(obj)
+    for user in User.objects.all():
+        obj = {
+            'value': user.username,
+            'url': '/accounts/detail/{}'.format(user.userprofileinfo.id),
+            'des': '(User)'
+        }
+        obj_list.append(obj)
+    for doc in Document.objects.all():
+        obj = {
+            'value': doc.title,
+            'url': '/documents/detail/{}'.format(doc.id),
+            'des': '(Document)'
+        }
+        obj_list.append(obj)
+    return JsonResponse({'obj_list': obj_list}, status=status.HTTP_200_OK)
 
 
 @page_template('category/category_page.html')
@@ -29,7 +51,7 @@ def category_list(request, template='category/category_list.html', extra_context
     user_filter = request.GET.get('order', '')
     if user_filter == 'Latest':
         context = {
-            'categories': Category.objects.all()[::-1],
+            'categories': Category.objects.all().order_by('-id'),
             'selected': '?order=Latest'
         }
     elif user_filter == 'Documents':
@@ -53,13 +75,13 @@ def category_list(request, template='category/category_list.html', extra_context
 def category_detail(request, pk,
                     template='category/category_detail.html',
                     extra_context=None):
-    user_filter = request.GET.get('order','')
+    user_filter = request.GET.get('order', '')
     if user_filter == 'Likes':
         context = {
             'category': Category.objects.get(pk=pk),
             'documents': Document.objects.filter(topic__pk=pk).annotate(
                 num_likes=Count('liked_by')
-            ).order_by('-num_likes', '-rating'),
+            ).order_by('-num_likes', '-rating').exclude(approve=False),
             'selected': '?order=Likes'
         }
     elif user_filter == 'Rating':
@@ -67,13 +89,13 @@ def category_detail(request, pk,
             'category': Category.objects.get(pk=pk),
             'documents': Document.objects.filter(topic__pk=pk).order_by('-rating').annotate(
                 num_likes=Count('liked_by')
-            ).order_by('-num_likes'),
+            ).order_by('-num_likes').exclude(approve=False),
             'selected': '?order=Rating'
         }
     else:
         context = {
             'category': Category.objects.get(pk=pk),
-            'documents': Document.objects.filter(topic__pk=pk).order_by('-submit_date'),
+            'documents': Document.objects.filter(topic__pk=pk).order_by('-id').exclude(approve=False),
             'selected': '?order=Date'
         }
         if extra_context is not None:

@@ -33,7 +33,7 @@ def get_document_recommendations(document):
         'documents': set(
             document_recommendations.annotate(
                 num_likes=Count('liked_by')
-            ).order_by('-num_likes')[:5]
+            ).order_by('-num_likes').exclude(approve=False)[:6]
         )
     }
 
@@ -52,14 +52,14 @@ def get_top_document_in_category(category):
             topic__id__contains=category.id
         ).annotate(
             num_likes=Count('liked_by')
-        ).order_by('-num_likes', '-rating')[:6]
+        ).order_by('-num_likes', '-rating').exclude(approve=False)[:6]
     }
 
 
 @register.inclusion_tag('document/top_likes.html')
 def get_document_search(keyword):
     return {
-        'documents': Document.objects.filter(title__icontains=keyword)
+        'documents': Document.objects.filter(title__icontains=keyword).exclude(approve=False)
     }
 
 
@@ -80,5 +80,12 @@ def get_top_user():
 @register.inclusion_tag('document/top_likes.html')
 def get_documents_by_user(user):
     return {
-        'documents': Document.objects.filter(posted_user=user)[:6]
+        'documents': Document.objects.filter(posted_user=user).exclude(approve=False)
+    }
+
+
+@register.inclusion_tag('document/top_likes.html')
+def get_unapprove_documents_by_user(user):
+    return {
+        'documents': Document.objects.filter(posted_user=user).filter(approve=False)
     }

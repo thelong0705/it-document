@@ -1,5 +1,7 @@
 <div class="col-md-2">
-    <div class="card" onclick="location.href='{% url 'document_detail' doc.id %}'">
+    <div class="card"
+         onclick="location.href=
+                 '{% if doc.approve %}{% url 'document_detail' doc.id %}{% else %}{% url 'unappove_document_detail' doc.id %}{% endif %}'">
         <figure class="thumb" style="display: inline-block">
             <div class="cover">
                 <img src="{{ doc.image.url }}"/>

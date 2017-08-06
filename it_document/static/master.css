@@ -6,9 +6,11 @@ nav {
     width: 150px;
     height: 150px;
 }
-.card{
+
+.card {
     margin-top: 20px;
 }
+
 .card:hover {
     cursor: pointer;
     box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
@@ -248,31 +250,14 @@ figure.thumb {
     color: black;
     line-height: 2;
     font-family: 'Lato', sans-serif;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 700;
 }
 
 .footer {
-    margin-top: 50px;
+    margin-top: 10px;
 }
 
-.button-book {
-    background-color: #10d1a5;
-    color: #ffffff;
-    font-family: 'Lato', sans-serif;
-    font-size: 12px;
-    font-weight: 700;
-    padding: 16px 20px;
-    letter-spacing: 0.5px;
-    align-text: center;
-    border-radius: 3px;
-}
-
-.button:hover {
-    background-color: #efefef;
-    color: #10d1a5;
-    cursor: pointer;
-}
 
 .book-meta {
     color: black;
@@ -310,16 +295,13 @@ figure.thumb {
     margin-right: 8px;
 }
 
-.book-cover {
-    width: 90%;
-    margin: 0 auto;
-    padding-bottom: 12px;
+.book-cover>img{
+    width: auto;
+    height: 500px;
+    max-width: 500px;
+    margin-bottom: 60px;
 }
 
-.book-cover > img {
-    width: 100%;
-    height: auto;
-}
 
 .book-description {
     color: #40d3b4;
@@ -331,53 +313,85 @@ figure.thumb {
     margin-top: 20px;
 }
 
-
-
-
 .text-span {
     margin-top: 10px;
     margin-left: 10px;
     margin-bottom: 10px;
 }
 
-
-.page-footer{
+.page-footer {
     margin-bottom: 50px;
 }
 
-.index-span{
+.index-span {
     float: right;
-    font-size:smaller;
+    font-size: smaller;
     padding-top: 10px;
 }
 
-#selector{
+#selector {
     width: auto;
 }
 
 .rating-stars ul {
-  list-style-type:none;
-  padding:0;
+    list-style-type: none;
+    padding: 0;
 
-  -moz-user-select:none;
-  -webkit-user-select:none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
 }
+
 .rating-stars ul > li.star {
-  display:inline-block;
+    display: inline-block;
 }
 
 /* Idle State of the stars */
 .rating-stars ul > li.star > i.fa {
-  font-size:2.5em; /* Change the size of the stars */
-  color:#ccc; /* Color on idle state */
+    font-size: 2.5em; /* Change the size of the stars */
+    color: #ccc; /* Color on idle state */
 }
 
 /* Hover state of the stars */
 .rating-stars ul > li.star.hover > i.fa {
-  color:#FFCC36;
+    color: #FFCC36;
 }
 
 /* Selected state of the stars */
 .rating-stars ul > li.star.selected > i.fa {
-  color:#FF912C;
+    color: #FF912C;
+}
+
+.loader {
+    display: inline-block;
+    margin-left: 5px;
+    padding-bottom: 10px;
+    border: 4px solid lightpink;
+    border-radius: 50%;
+    border-top: 4px solid #3498db;
+    width: 20px;
+    height: 20px;
+    -webkit-animation: spin 2s linear infinite;
+    animation: spin 2s linear infinite;
+}
+
+@-webkit-keyframes spin {
+    0% {
+        -webkit-transform: rotate(0deg);
+    }
+    100% {
+        -webkit-transform: rotate(360deg);
+    }
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.checkbox{
+    float: right;
 }

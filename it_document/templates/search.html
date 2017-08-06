@@ -1,12 +1,13 @@
 {% extends 'base.html' %}
-{% load bootstrap3 %}
-{% load staticfiles %}
 {% load document_template_tags %}
-
+{% load category_template_tags %}
 {% block content%}
     <div class="jumbotron">
         <h1>Search results</h1>
     </div>
+    <h1>Category contains "{{ keyword }}" in name</h1>
+    <hr>
+    {% get_search_categories keyword %}
     <h1>Documents contains "{{ keyword }}" in title</h1>
     <hr>
     {% get_document_search keyword %}

@@ -1,10 +1,4 @@
-{% load staticfiles %}
 <div class="row">
-    {% if users.count == 0 %}
-        <div class="container">
-            <h4><strong>No users found</strong></h4>
-        </div>
-    {% endif %}
     {% for person in users %}
         <div class="col-md-2">
             <div class="card" onclick="location.href='{% url 'user_detail' person.userprofileinfo.id %}'">
@@ -16,6 +10,10 @@
                     <p> <span class="glyphicon-upload glyphicon"></span> {{ person.document_set.count }} posts</p>
                 </figure>
             </div>
+        </div>
+    {% empty %}
+         <div class="container">
+            <h4><strong>No users found</strong></h4>
         </div>
     {% endfor %}
 </div>

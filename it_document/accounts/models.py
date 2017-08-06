@@ -13,4 +13,6 @@ class UserProfileInfo(models.Model):
         return self.user.username
 
     def get_absolute_url(self):
-        return reverse('user_detail', kwargs={'pk': self.id})
+        if self.user.is_superuser:
+            return reverse('admin_page', kwargs={'pk': self.pk})
+        return reverse('user_detail', kwargs={'pk': self.pk})

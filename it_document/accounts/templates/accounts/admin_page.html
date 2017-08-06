@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block ref %}
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+{% endblock %}
+{% block content %}
+    {% include 'accounts/user_jumbotron_part.html' %}
+    <h1>Unapproved documents</h1>
+    <hr>
+     <div class="endless_page_template">
+        {% include 'accounts/unapprove_documents.html' %}
+    </div>
+    <br/><br/>
+{% endblock %}

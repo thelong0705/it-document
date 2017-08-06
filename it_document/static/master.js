@@ -5,13 +5,31 @@ $(function () {
         method: "GET",
         data: {},
         success: function (data) {
-            availableTags = data.name_list;
-            $("#tags").autocomplete({
-                source: availableTags
-            });
-            $("#tags-nav").autocomplete({
-                source: availableTags
-            });
+            availableTags = data.obj_list;
+            if ($('#tags').length) {
+                $("#tags").autocomplete({
+                    source: availableTags,
+                    select: function (event, ui) {
+                        window.location = ui.item.url;
+                    }
+                }).autocomplete(`instance`)._renderItem = function (ul, item) {
+                    return $(`<li>`)
+                        .append(`<div>${item.value} ${item.des}</div>`)
+                        .appendTo(ul);
+                };
+            }
+            if ($('#tags-nav').length) {
+                $("#tags-nav").autocomplete({
+                    source: availableTags,
+                    select: function (event, ui) {
+                        window.location = ui.item.url;
+                    }
+                }).autocomplete(`instance`)._renderItem = function (ul, item) {
+                    return $(`<li>`)
+                        .append(`<div>${item.value} ${item.des}</div>`)
+                        .appendTo(ul);
+                };
+            }
         }
     });
 });
@@ -47,3 +65,7 @@ function search_by_click_nav() {
     if (content !== null && content !== ``)
         window.location.href = `/search/${content}`;
 }
+
+$(document).ready(function () {
+    $(`.loader`).hide()
+});

@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.conf import settings
 from django.db.models import Avg
-from django.http import HttpResponseRedirect, JsonResponse, HttpResponse, Http404
+from django.http import HttpResponseRedirect, JsonResponse, HttpResponse, Http404, HttpResponseNotFound
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.views.decorators.http import require_http_methods
@@ -32,27 +32,11 @@ class ThankYouView(TemplateView):
     template_name = 'document/thank_you.html'
 
 
-class DocumentDetailView(DetailView):
-    model = Document
-    template_name = 'document/document_detail.html'
-    page_template = 'document/comment_list.html',
-    context_object_name = 'document'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['rating'] = self.object.userratedocument_set.all().aggregate(Avg('rating'))['rating__avg']
-        context['number_of_rate'] = self.object.userratedocument_set.all().count()
-        try:
-            context['rated'] = self.object.userratedocument_set.get(user__username=self.request.user).rating
-        except UserRateDocument.DoesNotExist:
-            context['rated'] = -1
-        context['comments'] = Comment.objects.filter(document=self.object).order_by('-submit_date')
-        return context
-
-
 @page_template('document/comment_list.html')
 def document_detail(request, pk, template='document/document_detail.html', extra_context=None):
-    document = Document.objects.get(pk=pk)
+    document = get_object_or_404(Document, pk=pk)
+    if not document.approve:
+        return render(request, 'accounts/no_permission.html')
     liked = document.liked_by.all().filter(id=request.user.id).exists()
     try:
         rated = document.userratedocument_set.get(user__username=request.user).rating
@@ -64,7 +48,7 @@ def document_detail(request, pk, template='document/document_detail.html', extra
         'rating': document.userratedocument_set.all().aggregate(Avg('rating'))['rating__avg'],
         'number_of_rate': document.userratedocument_set.all().count(),
         'rated': rated,
-        'liked':liked
+        'liked': liked
     }
 
     if extra_context is not None:
@@ -91,17 +75,6 @@ class DocumentUpdateView(LoginRequiredMixin, UpdateView):
         return reverse('document_detail', kwargs={'pk': self.get_object().id})
 
 
-class DeleteDocumentView(LoginRequiredMixin, DeleteView):
-    model = Document
-    template_name = 'document/document_delete.html'
-    success_url = reverse_lazy('index')
-
-    def render_to_response(self, context, **response_kwargs):
-        if self.object.posted_user != self.request.user:
-            return HttpResponseRedirect(reverse('no_permission'))
-        return super().render_to_response(context, **response_kwargs)
-
-
 class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
@@ -123,6 +96,8 @@ urlpatterns = router.urls
 def like(request, pk):
     user = request.user
     document = get_object_or_404(Document, pk=pk)
+    if not document.approve:
+        return render(request, 'accounts/no_permission.html')
     if user in document.liked_by.all():
         document.liked_by.remove(user)
         activity = ActivityLog(user=user, document=document, verb='unliked')
@@ -145,7 +120,9 @@ def like(request, pk):
 def rate(request):
     rating = request.POST.get('rating')
     document_id = request.POST.get('document')
-    document = Document.objects.get(id=document_id)
+    document = get_object_or_404(Document, pk=document_id)
+    if not document.approve:
+        return render(request, 'accounts/no_permission.html')
     rating_obj, created = UserRateDocument.objects.get_or_create(
         user=request.user, document=document, defaults={'rating': rating}
     )
@@ -168,6 +145,19 @@ def rate(request):
     return JsonResponse(data=data)
 
 
+@login_required()
+def approve(request, pk):
+    if not request.user.is_superuser:
+        return render(request, 'accounts/no_permission.html')
+    document = get_object_or_404(Document, pk=pk)
+    document.approve = not document.approve
+    document.save()
+    data = {
+        'is_approve': document.approve
+    }
+    return JsonResponse(data=data)
+
+
 def download(request, path):
     file_path = os.path.join(settings.MEDIA_ROOT, path)
     if os.path.exists(file_path):
@@ -176,3 +166,29 @@ def download(request, path):
             response['Content-Disposition'] = 'inline; filename={}'.format((os.path.basename(file_path)))
             return response
     raise Http404
+
+
+def unapprove_document_detail(request, pk):
+    document = get_object_or_404(Document, pk=pk)
+    is_owner_or_admin = request.user.is_superuser or request.user == document.posted_user
+    if not is_owner_or_admin:
+        return render(request, 'accounts/no_permission.html')
+
+    context = {
+        'document': document,
+        'is_approve': document.approve
+    }
+    return render(request, 'document/unapprove_document_detail.html', context=context)
+
+
+@login_required()
+def delete_document(request, pk):
+    document = get_object_or_404(Document, pk=pk)
+    is_owner_or_admin = request.user.is_superuser or request.user == document.posted_user
+    if not is_owner_or_admin:
+        return render(request, 'accounts/no_permission.html')
+    document.delete()
+    data = {
+        'deleted': True
+    }
+    return JsonResponse(data=data)

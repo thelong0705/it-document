@@ -1,0 +1,5 @@
+{% for cat in categories %}
+    <a href="{% url 'category_detail' cat.id %}" class="btn btn-default" style="margin: 10px 10px 10px 0;">{{ cat|title }}</a>
+{% empty %}
+    <h4> No categories found</h4>
+{% endfor %}

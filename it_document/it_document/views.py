@@ -15,11 +15,7 @@ class IndexPage(TemplateView):
 
 
 def search(request, keyword):
-    try:
-        category = Category.objects.get(name__iexact=keyword)
-        return HttpResponseRedirect(reverse('category_detail', kwargs={'pk': category.id}))
-    except Category.DoesNotExist:
-        return render(request, 'search.html', {'keyword': keyword})
+    return render(request, 'search.html', {'keyword': keyword})
 
 
 @page_template('document/top_6_likes.html')
@@ -29,11 +25,11 @@ def entry_index(request, template='index.html', extra_context=None):
     context = {
         'documents': Document.objects.annotate(
             num_likes=Count('liked_by')
-        ).order_by('-num_likes', '-rating')[:12],
+        ).order_by('-num_likes', '-rating').exclude(approve=False)[:12],
         'documents_top_rating': Document.objects.order_by('-rating').annotate(
             num_likes=Count('liked_by')
-        ).order_by('-rating', '-num_likes')[:12],
-        'documents_latest': Document.objects.order_by('-submit_date')[:12]
+        ).order_by('-rating', '-num_likes').exclude(approve=False)[:12],
+        'documents_latest': Document.objects.all().order_by('-id').exclude(approve=False)[:12]
     }
     if extra_context is not None:
         context.update(extra_context)

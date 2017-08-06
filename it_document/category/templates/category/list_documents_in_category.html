@@ -1,8 +1,6 @@
-{% load el_pagination_tags %}
-<h1 style="display: inline">All documents in this category</h1>
+{% load el_pagination_tags %}<h1 style="display: inline">All documents in this category</h1>
 <div style="float: right; margin-top: 25px;">
-    <label for="selector">Order by:</label>
-    <select id="selector" onchange="location = this.value;">
+    <label for="selector">Order by:</label> <select id="selector" onchange="location = this.value;">
     <option value="?order=Date">Latest</option>
     <option value="?order=Likes">Most likes</option>
     <option value="?order=Rating">Top rating</option>
@@ -10,18 +8,18 @@
 </div>
 <hr>
 <div class="row">
-    {% if documents.count == 0 %}
-        <div class="container">
-            <h1><strong>No documents found</strong></h1>
-        </div>
-    {% endif %}
     {% paginate 6 documents %}
     {% for doc in documents %}
         {% include 'document/document.html' %}
+    {% empty %}
+        <div class="container">
+            <h4><strong>No documents found</strong></h4>
+        </div>
     {% endfor %}
 </div>
 <div style="margin-top: 20px;">
     {% show_pages %}
+    <span class="loader"></span>
 </div>
 <script>
     $("#selector").val(`{{ selected }}`);

@@ -4,16 +4,18 @@
 {% endfor %}
 {% get_pages %}
 
-<h1>Top rating <span class='index-span'>{{ pages.previous }} {{ pages.next }}</span></h1>
+<h1>
+    Top rating <span class='index-span'>{{ pages.previous }} {{ pages.next }}</span>
+    <span class="loader"></span>
+</h1>
 <hr>
 <div class="row">
-    {% if documents_top_rating.count == 0 %}
-        <div class="container">
-            <h1><strong>No documents found</strong></h1>
-        </div>
-    {% endif %}
     {% paginate 6 documents_top_rating using "top_rating_page"  %}
     {% for doc in documents_top_rating %}
         {% include 'document/document.html' %}
+    {% empty %}
+         <div class="container">
+            <h4><strong>No documents found</strong></h4>
+        </div>
     {% endfor %}
 </div>
