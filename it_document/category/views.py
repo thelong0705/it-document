@@ -36,7 +36,7 @@ def get_all_category_api(request):
             'des': '(User)'
         }
         obj_list.append(obj)
-    for doc in Document.objects.all():
+    for doc in Document.objects.all().exclude(approve=False):
         obj = {
             'value': doc.title,
             'url': '/documents/detail/{}'.format(doc.id),

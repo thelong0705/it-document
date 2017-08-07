@@ -67,5 +67,7 @@ function search_by_click_nav() {
 }
 
 $(document).ready(function () {
-    $(`.loader`).hide()
+    $(`.loader`).hide();
+    $(`.star-loader`).hide();
+    $(`.loader-comment`).hide();
 });

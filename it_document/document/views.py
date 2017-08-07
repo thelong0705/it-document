@@ -11,7 +11,7 @@ from django.views.generic import ListView, CreateView, TemplateView, DetailView,
 from rest_framework import authentication, permissions, status
 from rest_framework.generics import ListCreateAPIView
 from rest_framework.routers import DefaultRouter
-from .models import Document, Comment, UserRateDocument, ActivityLog
+from .models import Document, Comment, UserRateDocument, ActivityLog, Bookmark
 from .forms import DocumentCreateForm
 from rest_framework import viewsets, serializers
 from el_pagination.decorators import page_template
@@ -21,15 +21,18 @@ from el_pagination.views import AjaxListView
 class AddNewDocumentView(LoginRequiredMixin, CreateView):
     form_class = DocumentCreateForm
     template_name = 'document/add_new_document.html'
-    success_url = reverse_lazy('thankyou')
 
     def form_valid(self, form):
         form.instance.posted_user = self.request.user
-        return super(AddNewDocumentView, self).form_valid(form)
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse('thankyou', kwargs={'pk': self.object.id})
 
 
-class ThankYouView(TemplateView):
-    template_name = 'document/thank_you.html'
+def thank_you(request, pk):
+    context = {'pk': pk}
+    return render(request, 'document/thank_you.html',context=context)
 
 
 @page_template('document/comment_list.html')
@@ -38,6 +41,10 @@ def document_detail(request, pk, template='document/document_detail.html', extra
     if not document.approve:
         return render(request, 'accounts/no_permission.html')
     liked = document.liked_by.all().filter(id=request.user.id).exists()
+    if request.user.is_authenticated:
+        bookmarked = Bookmark.objects.filter(user=request.user, document=document).exists()
+    else:
+        bookmarked = False
     try:
         rated = document.userratedocument_set.get(user__username=request.user).rating
     except UserRateDocument.DoesNotExist:
@@ -48,7 +55,8 @@ def document_detail(request, pk, template='document/document_detail.html', extra
         'rating': document.userratedocument_set.all().aggregate(Avg('rating'))['rating__avg'],
         'number_of_rate': document.userratedocument_set.all().count(),
         'rated': rated,
-        'liked': liked
+        'liked': liked,
+        'bookmarked': bookmarked
     }
 
     if extra_context is not None:
@@ -69,6 +77,7 @@ class DocumentUpdateView(LoginRequiredMixin, UpdateView):
     def form_valid(self, form):
         activity = ActivityLog(user=self.object.posted_user, document=self.object, verb='edited')
         activity.save()
+        self.object.update_date()
         return super().form_valid(form)
 
     def get_success_url(self):
@@ -115,6 +124,20 @@ def like(request, pk):
     return JsonResponse(data=data)
 
 
+def bookmark(request,pk):
+    user = request.user
+    document = get_object_or_404(Document, pk=pk)
+    if not document.approve:
+        return render(request, 'accounts/no_permission.html')
+    bookmark_obj, created = Bookmark.objects.get_or_create(user=user,document=document)
+    if not created:
+        bookmark_obj.delete()
+    data = {
+        'bookmarked': created
+    }
+    return JsonResponse(data=data)
+
+
 @login_required()
 @require_http_methods(['POST'])
 def rate(request):
@@ -129,8 +152,8 @@ def rate(request):
     if not created:
         rating_obj.rating = rating
         rating_obj.save()
-    temp = Document.objects.filter(id=document_id).update(
-        rating=document.userratedocument_set.all().aggregate(Avg('rating'))['rating__avg'])
+    document.rating = document.userratedocument_set.all().aggregate(Avg('rating'))['rating__avg']
+    document.save()
     activity = ActivityLog(
         user=request.user,
         document=document,
@@ -152,6 +175,11 @@ def approve(request, pk):
     document = get_object_or_404(Document, pk=pk)
     document.approve = not document.approve
     document.save()
+    if document.approve:
+        activity = ActivityLog(user=request.user, document=document, verb='approved')
+    else:
+        activity = ActivityLog(user=request.user, document=document, verb='unapproved')
+    activity.save()
     data = {
         'is_approve': document.approve
     }

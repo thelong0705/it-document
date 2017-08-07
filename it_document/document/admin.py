@@ -3,7 +3,7 @@ from .models import Document, Comment, Level, UserRateDocument, ActivityLog
 
 
 class DocumentAdmin(admin.ModelAdmin):
-    readonly_fields = ('submit_date', 'edited_date')
+    readonly_fields = ('submit_date',)
 
 
 class ActivityLogAdmin(admin.ModelAdmin):

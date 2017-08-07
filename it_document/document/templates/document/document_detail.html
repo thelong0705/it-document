@@ -24,7 +24,8 @@
                     <h1 class='heading'>
                         {{ document.title|title }} </h1>
                     <div class='author'>
-                        posted by {{ document.posted_user|title }}
+                        Posted by {{ document.posted_user|title }} at {{ document.submit_date }}<br/> Last
+                        edited: {{ document.edited_date }}
                     </div>
                     <div class='rating'>
                         <span class="glyphicon glyphicon-star"></span>
@@ -33,8 +34,8 @@
                         {% else %}
                             <span class="rating-text">{{ rating|floatformat }} Rating/ {{ number_of_rate }} Votes</span>
                         {% endif %}
-                        <br/> <span class="glyphicon glyphicon-thumbs-up"></span>
-                        <span id="num_likes">{{ document.liked_by.count }}</span> Likes
+                        <br/> <span class="glyphicon glyphicon-thumbs-up"></span> <span
+                            id="num_likes">{{ document.liked_by.count }}</span> Likes
                     </div>
 
                     <article class='description'>
@@ -63,8 +64,8 @@
         </div>
     </div>
     <div class="container">
-        <h1>Comments</h1>
-        <hr>
+        <h1>Comments <span class="loader-comment"></span></h1>
+        <hr/>
         {% if user.is_authenticated %}
             <div class="media" id="comment-box">
                 <div class="media-left">
@@ -113,6 +114,7 @@
             if (window.event.keyCode === 13 && !event.shiftKey) {
                 let content = $("#comment").val();
                 if (content !== null && content !== ``) {
+                    $(`.loader-comment`).show();
                     $.ajax({
                         url: api_url,
                         method: "POST",
@@ -138,6 +140,9 @@
                              </div>`)
                                 .insertAfter("#comment-box");
                         },
+                        complete: function () {
+                             $(`.loader-comment`).hide();
+                        },
                         error: function (error) {
                         }
                     })
@@ -149,19 +154,24 @@
         $("#like-btn").click(function (e) {
             e.preventDefault();
             let api_url = `/documents/like/{{ document.id }}/`;
+            $(`.loader`).show();
             $.ajax({
                 url: api_url,
                 method: "GET",
                 data: {},
                 success: function (data) {
                     if (data.is_like) {
-                        $("#like-btn").text("Unlike");
+                        $("#like-btn").html(`<span class="glyphicon glyphicon-thumbs-down"></span> Unlike`);
                     } else {
-                        $("#like-btn").text("Like");
+                        $("#like-btn").html(`<span class="glyphicon glyphicon-thumbs-up"></span> Like`);
                     }
                     $(`#num_likes`).text(data.num_likes);
                 },
+                complete: function (data) {
+                    $(`.loader`).hide()
+                },
                 error: function (error) {
+                    alert(`Error! ${error}`)
                 }
             })
         });
@@ -170,18 +180,44 @@
         $("#delete-btn-modal").click(function (e) {
             e.preventDefault();
             let api_url = `/documents/delete/api/{{ document.id }}/`;
+            $(`.modal-body`).text(`Loading ...`);
             $.ajax({
                 url: api_url,
                 method: "GET",
                 data: {},
                 success: function (data) {
-                    alert("delete successfully!");
+                    alert(`Delete successfully!`);
                     location.href = `/`
                 },
                 error: function (error) {
+                    alert(`Error! ${error}`)
                 }
             })
         })
     </script>
+    <script>
+        $("#bookmark-btn").click(function (e) {
+            e.preventDefault();
+            let api_url = `/documents/bookmark/{{ document.id }}/`;
+            $(`.loader`).show();
+            $.ajax({
+                url: api_url,
+                method: "GET",
+                data: {},
+                success: function (data) {
+                    if (data.bookmarked) {
+                        $("#bookmark-btn").html(`<span class="glyphicon glyphicon-minus-sign"></span> Unbookmark`);
+                    } else {
+                        $("#bookmark-btn").html(`<span class="glyphicon glyphicon-bookmark"></span> Bookmark`);
+                    }
+                },
+                complete: function (data) {
+                    $(`.loader`).hide();
+                },
+                error: function (error) {
+                    alert(`Error! ${error}`)
+                }
+            })
+        });
     </script>
 {% endblock %}

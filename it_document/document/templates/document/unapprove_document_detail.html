@@ -61,6 +61,7 @@
                                 data-target="#myModal">
                             <span class="glyphicon glyphicon-remove"></span>Delete
                         </button>
+                        <div class="loader"></div>
                         <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
                             <div class="modal-dialog" role="document">
                                 <div class="modal-content">
@@ -90,6 +91,7 @@
         $(".approve-btn").click(function (e) {
             e.preventDefault();
             let api_url = `/documents/approve/{{ document.id }}/`;
+            $(`.loader`).show();
             $.ajax({
                 url: api_url,
                 method: "GET",
@@ -101,21 +103,28 @@
                         $(".approve-btn").html(`<span class="glyphicon glyphicon-ok"></span> Approve`);
                     }
                 },
+                complete: function (data) {
+                    $(`.loader`).hide();
+                },
                 error: function (error) {
+                    alert(`Error! ${error}`);
                 }
             })
         });
         $("#delete-btn-modal").click(function (e) {
             e.preventDefault();
             let api_url = `/documents/delete/api/{{ document.id }}/`;
+            $(`.modal-body`).text(`Loading ...`);
             $.ajax({
                 url: api_url,
                 method: "GET",
                 data: {},
                 success: function (data) {
+                    alert(`Delete successfully!`);
                     location.href = `/accounts/admin/{{ user.userprofileinfo.id }}/`
                 },
                 error: function (error) {
+                    alert(`Error! ${error}`);
                 }
             })
         })

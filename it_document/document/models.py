@@ -2,6 +2,7 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db.models import Avg
+from django.utils import timezone
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 
@@ -30,7 +31,7 @@ class Document(models.Model):
     level = models.ManyToManyField(Level)
     author = models.CharField(max_length=50, blank=True, null=True)
     submit_date = models.DateField(auto_now_add=True)
-    edited_date = models.DateField(auto_now=True)
+    edited_date = models.DateField(default=timezone.now)
     link = models.URLField(null=True, blank=True)
     file = models.FileField(null=True, blank=True, upload_to='document_files',
                             validators=[validate_file_extension])
@@ -52,6 +53,9 @@ class Document(models.Model):
         if self.rating is None:
             self.rating = 0
         super().save()
+
+    def update_date(self):
+        self.edited_date = timezone.now()
 
 
 class Comment(models.Model):
@@ -82,6 +86,31 @@ class ActivityLog(models.Model):
 
     def __str__(self):
         return self.verb
+
+
+class Bookmark(models.Model):
+    user = models.ForeignKey(User)
+    document = models.ForeignKey(Document)
+    bookmarked_date = models.DateField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'document')
+
+
+@receiver(post_save, sender=Bookmark)
+def create_bookmark_handler(sender, instance, **kwargs):
+    user = instance.user
+    document = instance.document
+    activity = ActivityLog(user=user, document=document, verb='bookmarked')
+    activity.save()
+
+
+@receiver(post_delete, sender=Bookmark)
+def delete_bookmark_handler(sender, instance, **kwargs):
+    user = instance.user
+    document = instance.document
+    activity = ActivityLog(user=user, document=document, verb='unbookmarked')
+    activity.save()
 
 
 @receiver(post_save, sender=Comment)

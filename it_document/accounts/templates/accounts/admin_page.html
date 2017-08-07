@@ -5,9 +5,14 @@
 {% block content %}
     {% include 'accounts/user_jumbotron_part.html' %}
     <h1>Unapproved documents</h1>
-    <hr>
+    <hr/>
      <div class="endless_page_template">
         {% include 'accounts/unapprove_documents.html' %}
+    </div>
+    <h1>Approved documents</h1>
+    <hr/>
+    <div class="endless_page_template">
+        {% include 'accounts/approve_documents.html' %}
     </div>
     <br/><br/>
 {% endblock %}

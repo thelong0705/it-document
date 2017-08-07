@@ -5,8 +5,9 @@
     <h1><a href="{% url 'category_detail' category.id  %}">{{ category|title }}</a></h1>
     <hr>
     {% get_top_document_in_category category %}
+    <br/>
 {% endfor %}
-<div style="margin-top: 30px; margin-bottom: 20px;">
+<div style="margin-top: 15px; margin-bottom: 20px;">
     {% show_pages %}
-    <div class="loader"></div>
+    <div class="loader" hidden></div>
 </div>

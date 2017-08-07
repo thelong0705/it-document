@@ -5,7 +5,7 @@
 {% get_pages %}
 
 <h1>Top likes <span class="index-span">{{ pages.previous }} {{ pages.next }}</span>
-    <span class="loader"></span></h1>
+    <span class="loader" hidden></span></h1>
 <hr>
 <div class="row">
     {% paginate 6 documents %}

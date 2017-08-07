@@ -226,7 +226,7 @@ figure.thumb {
 .book-text > .heading {
     color: #0a2832;
     font-family: 'Arbutus Slab', serif;
-    font-size: 25px;
+    font-size: 30px;
     font-weight: 600;
     margin-bottom: 3px;
     line-height: 1.3;
@@ -256,8 +256,12 @@ figure.thumb {
 
 .footer {
     margin-top: 10px;
+    color: black;
+    font-family: 'Crimson Text', serif;
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 1.5;
 }
-
 
 .book-meta {
     color: black;
@@ -295,13 +299,12 @@ figure.thumb {
     margin-right: 8px;
 }
 
-.book-cover>img{
+.book-cover > img {
     width: auto;
     height: 500px;
     max-width: 500px;
     margin-bottom: 60px;
 }
-
 
 .book-description {
     color: #40d3b4;
@@ -353,15 +356,15 @@ figure.thumb {
 
 /* Hover state of the stars */
 .rating-stars ul > li.star.hover > i.fa {
-    color: #FFCC36;
+    color: greenyellow;
 }
 
 /* Selected state of the stars */
 .rating-stars ul > li.star.selected > i.fa {
-    color: #FF912C;
+    color: greenyellow;
 }
 
-.loader {
+.loader, .star-loader, .loader-comment {
     display: inline-block;
     margin-left: 5px;
     padding-bottom: 10px;
@@ -392,6 +395,11 @@ figure.thumb {
     }
 }
 
-.checkbox{
+.checkbox,.checkbox-approve {
     float: right;
+}
+
+
+#bookmark-btn {
+    margin-left: 10px;
 }

@@ -1,4 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
-    <h2>You do not have permission to perform this action</h2>
+    <div class="jumbotron">
+         <h2>You do not have permission to perform this action</h2>
+         <a href="{% url 'index' %}" class="btn btn-primary"> Back to home page</a>
+    </div>
 {% endblock %}

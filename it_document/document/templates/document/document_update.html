@@ -10,6 +10,7 @@
                 {% bootstrap_form form %}
                 <div class="form-group">
                     <label class="control-label" for="other">You can specify a new category here:</label>
+                    <div class="loader" hidden></div>
                     <div class="row">
                         <div class="col-md-10">
                             <input type="text" maxlength="50" class="form-control" id="add-cat-input">
@@ -31,6 +32,7 @@
                 e.preventDefault();
                 let name = $("#add-cat-input").val();
                 let api_url = `/categories/ajax/add-cat/`;
+                $(`.loader`).show();
                 $.ajax({
                     url: api_url,
                     method: "POST",
@@ -50,6 +52,9 @@
                         else {
                             $("label[for='other']").text("Category is already exist")
                         }
+                    },
+                    complete: function (data) {
+                        $(`.loader`).hide()
                     },
                     error: function (error) {
                         $("label[for='other']").text("You have to specify a new category before adding it")

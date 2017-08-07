@@ -1,24 +1,24 @@
-{% load el_pagination_tags %}{% paginate 12 documents using "unaprrove_documents_page" %}
-{% if deleted %}
+{% load el_pagination_tags %}{% paginate 12 approve_documents using "aprrove_documents_page" %}
+{% if deleted_approve %}
     <p>Documents are deleted successfully !</p>
 {% endif %}
-{% if approved %}
-    <p>Documents are approved successfully !</p>
+{% if unapproved %}
+    <p>Documents are unapproved successfully !</p>
 {% endif %}
-{% if no_selected %}
-    <p id="no-selected">Items must be selected in order to perform actions on them</p>
+{% if no_selected_approve %}
+    <p>Items must be selected in order to perform actions on them</p>
 {% endif %}
 <form method="post">
     {% csrf_token %}
     <div style="margin-bottom: 20px;">
-        <button type="button" class="btn btn-primary " data-toggle="modal" data-target="#myModal">
+        <button type="button" class="btn btn-primary " data-toggle="modal" data-target="#myModal2">
             Delete selected
         </button>
-        <input type="submit" class="btn btn-primary" name="action" value="Approve selected">
-        <button type="button" class="btn btn-primary" id="select-all">Select all</button>
-        <span id="selected-text"> 0 of {{ documents.count }} selected </span>
+        <input type="submit" class="btn btn-primary" name="action-approved" value="Unapprove selected">
+        <button type="button" class="btn btn-primary" id="select-all-approve">Select all</button>
+        <span id="selected-text-approve"> 0 of {{ approve_documents.count }} selected </span>
     </div>
-    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal fade" id="myModal2" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -32,7 +32,7 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel
                     </button>
-                    <input type="submit" class="btn btn-danger" value="Delete" name="action">
+                    <input type="submit" class="btn btn-danger" name="action-approved" value="Delete">
                 </div>
             </div>
         </div>
@@ -40,24 +40,24 @@
     <div class="row">
         <div class="col-lg-6">
             <div class="list-group">
-                {% for doc in documents %}
+                {% for doc in approve_documents %}
                     {% if forloop.counter0 < 6 %}
                         {% if forloop.counter0|divisibleby:2 %}
                             <a href="{% url 'unappove_document_detail' doc.id %}"
                                class="list-group-item list-group-item-info ">{{ doc.title }}
-                                <input class="checkbox"
+                                <input class="checkbox-approve"
                                        type="checkbox"
                                        value="{{ doc.id }}"
-                                       name="checkbox">
+                                       name="checkbox-approve">
                             </a>
 
                         {% else %}
                             <a href="{% url 'unappove_document_detail' doc.id %}"
                                class="list-group-item list-group-item ">{{ doc.title }}
-                               <input class="checkbox"
+                               <input class="checkbox-approve"
                                        type="checkbox"
                                        value="{{ doc.id }}"
-                                       name="checkbox">
+                                       name="checkbox-approve">
                             </a>
                         {% endif %}
                     {% endif %}
@@ -69,23 +69,23 @@
         </div>
         <div class="col-lg-6">
             <div class="list-group">
-                {% for doc in documents %}
+                {% for doc in approve_documents %}
                     {% if forloop.counter0 >= 6  and forloop.counter0 < 12 %}
                         {% if forloop.counter0|divisibleby:2 %}
                             <a href="{% url 'unappove_document_detail' doc.id %}"
                                class="list-group-item list-group-item-info ">{{ doc.title }}
-                                <input class="checkbox"
+                                <input class="checkbox-approve"
                                        type="checkbox"
                                        value="{{ doc.id }}"
-                                       name="checkbox">
+                                       name="checkbox-approve">
                             </a>
                         {% else %}
                             <a href="{% url 'unappove_document_detail' doc.id %}"
                                class="list-group-item list-group-item ">{{ doc.title }}
-                                <input class="checkbox"
+                                <input class="checkbox-approve"
                                        type="checkbox"
                                        value="{{ doc.id }}"
-                                       name="checkbox">
+                                       name="checkbox-approve">
                             </a>
                         {% endif %}
                     {% endif %}
@@ -96,21 +96,21 @@
     </div>
 </form>
 <script>
-    let selectBtn =  $(`#select-all`);
-    selectBtn.click(function (e) {
-       if(selectBtn.text()=== `Select all`){
-           selectBtn.text(`Unselect all`);
-           $(`.checkbox`).prop(`checked`,true);
+    let selectBtnApprove =  $(`#select-all-approve`);
+    selectBtnApprove.click(function (e) {
+       if(selectBtnApprove.text()=== `Select all`){
+           selectBtnApprove.text(`Unselect all`);
+           $(`.checkbox-approve`).prop(`checked`,true);
        }
        else {
-           selectBtn.text(`Select all`);
-           $(`.checkbox`).prop(`checked`,false);
+           selectBtnApprove.text(`Select all`);
+           $(`.checkbox-approve`).prop(`checked`,false);
        }
-       let totalChecked = $('.checkbox:checked').length;
-       $(`#selected-text`).text(`${totalChecked} of {{ documents.count }} selected`)
+       let totalChecked = $('.checkbox-approve:checked').length;
+       $(`#selected-text-approve`).text(`${totalChecked} of {{ approve_documents.count }} selected`)
     });
-    $(`.checkbox`).click(function (e) {
-        let totalChecked = $('.checkbox:checked').length;
-        $(`#selected-text`).text(`${totalChecked} of {{ documents.count }} selected`)
+    $(`.checkbox-approve`).click(function (e) {
+        let totalChecked = $('.checkbox-approve:checked').length;
+        $(`#selected-text-approve`).text(`${totalChecked} of {{ approve_documents.count }} selected`)
     })
 </script>

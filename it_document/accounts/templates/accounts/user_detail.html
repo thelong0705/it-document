@@ -5,9 +5,13 @@
 {% endblock %}
 {% block content %}
     {% include 'accounts/user_jumbotron_part.html' %}
-    <h1> Posted Documents </h1>
+    <h1>Bookmarked documents</h1>
+    <hr/>
+    {% get_bookmark_documents user_profile.user %}
+    <h1>Posted Documents</h1>
     <hr/>
     {% get_documents_by_user user_profile.user %}
+    <br/>
     {% if user.id == user_profile.user.id or user.is_superuser %}
         <h1> Unapproved Document</h1>
         <hr/>

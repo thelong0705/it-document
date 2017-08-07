@@ -2,7 +2,7 @@ from django import template
 from django.contrib.auth.models import User
 from django.db.models import Count
 
-from document.models import Document, Comment
+from document.models import Document, Comment, Bookmark
 from category.models import Category
 
 register = template.Library()
@@ -88,4 +88,11 @@ def get_documents_by_user(user):
 def get_unapprove_documents_by_user(user):
     return {
         'documents': Document.objects.filter(posted_user=user).filter(approve=False)
+    }
+
+
+@register.inclusion_tag('document/top_likes.html')
+def get_bookmark_documents(user):
+    return {
+        'documents': Document.objects.filter(bookmark__user=user)
     }
