@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="jumbotron" style="margin-top: 20px;">
+        {% if resend %}
+            <h3>An email has been resent to your email. Go to the link to finish the registration!</h3>
+        {% else %}
+            <h3>An email has been sent to your email. Go to the link to finish the registration!</h3>
+        {% endif %}
+        <a href="/accounts/register?resend={{ email }}">Resend email</a>
+
+    </div>
+{% endblock %}

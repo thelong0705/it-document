@@ -30,6 +30,22 @@ $(function () {
                         .appendTo(ul);
                 };
             }
+        },
+        statusCode: {
+            400: function () {
+                alert(`Bad request`);
+            },
+            404: function () {
+                alert(`Not found`);
+            },
+            500: function () {
+                alert(`Internal server error`);
+            },
+        },
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
+            if (XMLHttpRequest.readyState === 0) {
+                alert(`No connection`);
+            }
         }
     });
 });

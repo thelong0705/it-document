@@ -98,12 +98,12 @@
 <script>
     let selectBtnApprove =  $(`#select-all-approve`);
     selectBtnApprove.click(function (e) {
-       if(selectBtnApprove.text()=== `Select all`){
-           selectBtnApprove.text(`Unselect all`);
+       if(selectBtnApprove.text() === selectText){
+           selectBtnApprove.text(unselectText);
            $(`.checkbox-approve`).prop(`checked`,true);
        }
        else {
-           selectBtnApprove.text(`Select all`);
+           selectBtnApprove.text(selectText);
            $(`.checkbox-approve`).prop(`checked`,false);
        }
        let totalChecked = $('.checkbox-approve:checked').length;

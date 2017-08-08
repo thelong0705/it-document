@@ -96,14 +96,16 @@
     </div>
 </form>
 <script>
+    const unselectText = `Unselect all`;
+    const selectText = `Select all`;
     let selectBtn =  $(`#select-all`);
     selectBtn.click(function (e) {
-       if(selectBtn.text()=== `Select all`){
-           selectBtn.text(`Unselect all`);
+       if(selectBtn.text()=== selectText){
+           selectBtn.text(unselectText);
            $(`.checkbox`).prop(`checked`,true);
        }
        else {
-           selectBtn.text(`Select all`);
+           selectBtn.text(selectText);
            $(`.checkbox`).prop(`checked`,false);
        }
        let totalChecked = $('.checkbox:checked').length;

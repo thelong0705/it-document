@@ -57,8 +57,7 @@
                             <a href="{% url 'document_update' document.id %}" class="btn btn-primary"> <span
                                     class="glyphicon glyphicon-edit"></span>Edit</a>
                         {% endif %}
-                        <button type="button" class="btn btn-primary " data-toggle="modal"
-                                data-target="#myModal">
+                        <button type="button" class="btn btn-primary " data-toggle="modal" data-target="#myModal">
                             <span class="glyphicon glyphicon-remove"></span>Delete
                         </button>
                         <div class="loader"></div>
@@ -106,10 +105,23 @@
                 complete: function (data) {
                     $(`.loader`).hide();
                 },
-                error: function (error) {
-                    alert(`Error! ${error}`);
+                statusCode: {
+                    400: function () {
+                        alert(`Bad request`);
+                    },
+                    404: function () {
+                        alert(`Not found`);
+                    },
+                    500: function () {
+                        alert(`Internal server error`);
+                    },
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    if (XMLHttpRequest.readyState === 0) {
+                        alert(`No connection`);
+                    }
                 }
-            })
+            });
         });
         $("#delete-btn-modal").click(function (e) {
             e.preventDefault();
@@ -121,12 +133,28 @@
                 data: {},
                 success: function (data) {
                     alert(`Delete successfully!`);
-                    location.href = `/accounts/admin/{{ user.userprofileinfo.id }}/`
+                    if (`{{ user.is_superuser }}` === `True`)
+                        location.href = `/accounts/admin/{{ user.userprofileinfo.id }}/`;
+                    else
+                        location.href = `/`
                 },
-                error: function (error) {
-                    alert(`Error! ${error}`);
+                statusCode: {
+                    400: function () {
+                        alert(`Bad request`);
+                    },
+                    404: function () {
+                        alert(`Not found`);
+                    },
+                    500: function () {
+                        alert(`Internal server error`);
+                    },
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    if (XMLHttpRequest.readyState === 0) {
+                        alert(`No connection`);
+                    }
                 }
-            })
-        })
+            });
+        });
     </script>
 {% endblock %}

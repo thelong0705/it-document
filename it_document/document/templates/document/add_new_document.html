@@ -55,10 +55,23 @@
                     complete: function (data) {
                         $(`.loader`).hide()
                     },
-                    error: function (error) {
-                        $("label[for='other']").text("You have to specify a new category before adding it")
+                    statusCode: {
+                        400: function () {
+                            alert(`Bad request`);
+                        },
+                        404: function () {
+                            alert(`Not found`);
+                        },
+                        500: function () {
+                            alert(`Internal server error`);
+                        },
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        if (XMLHttpRequest.readyState === 0) {
+                            alert(`No connection`);
+                        }
                     }
-                })
+                });
             });
         });
     </script>

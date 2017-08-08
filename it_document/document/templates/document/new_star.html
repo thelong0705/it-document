@@ -137,9 +137,11 @@
                 complete: function (data) {
                     $(`.star-loader`).hide();
                 },
-                error: function (error) {
-                    alert(`Error! ${error}`)
-                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    if (XMLHttpRequest.readyState === 0) {
+                        alert(`No connection`);
+                    }
+                }
             });
         });
     });

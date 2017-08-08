@@ -36,7 +36,7 @@ def get_all_category_api(request):
             'des': '(User)'
         }
         obj_list.append(obj)
-    for doc in Document.objects.all().exclude(approve=False):
+    for doc in Document.objects.filter(approve=True):
         obj = {
             'value': doc.title,
             'url': '/documents/detail/{}'.format(doc.id),
@@ -79,23 +79,23 @@ def category_detail(request, pk,
     if user_filter == 'Likes':
         context = {
             'category': Category.objects.get(pk=pk),
-            'documents': Document.objects.filter(topic__pk=pk).annotate(
+            'documents': Document.objects.filter(topic__pk=pk, approve=True).annotate(
                 num_likes=Count('liked_by')
-            ).order_by('-num_likes', '-rating').exclude(approve=False),
+            ).order_by('-num_likes', '-rating'),
             'selected': '?order=Likes'
         }
     elif user_filter == 'Rating':
         context = {
             'category': Category.objects.get(pk=pk),
-            'documents': Document.objects.filter(topic__pk=pk).order_by('-rating').annotate(
+            'documents': Document.objects.filter(topic__pk=pk, approve=True).order_by('-rating').annotate(
                 num_likes=Count('liked_by')
-            ).order_by('-num_likes').exclude(approve=False),
+            ).order_by('-num_likes'),
             'selected': '?order=Rating'
         }
     else:
         context = {
             'category': Category.objects.get(pk=pk),
-            'documents': Document.objects.filter(topic__pk=pk).order_by('-id').exclude(approve=False),
+            'documents': Document.objects.filter(topic__pk=pk,approve=True).order_by('-id'),
             'selected': '?order=Date'
         }
         if extra_context is not None:

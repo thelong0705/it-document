@@ -1,5 +1,5 @@
 $(document).ready(function () {
-    let formInputs = $('input[type="text"],input[type="password"]');
+    let formInputs = $('input[type="text"],input[type="password"],input[type="email"]');
     let check = formInputs.data('ui-autocomplete') !== undefined;
     if (check) {
         formInputs.parent().children('p.formLabel',).addClass('formTop');

@@ -1,26 +1,22 @@
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.contrib.sites.shortcuts import get_current_site
+from django.core.mail import EmailMessage
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
+from django.template.loader import render_to_string
 from django.urls import reverse_lazy, reverse
+from django.utils.encoding import force_bytes, force_text
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views.generic import CreateView, DetailView, UpdateView, TemplateView
 from el_pagination.decorators import page_template
-
 from accounts.forms import UserCreateForm, UserLoginForm
 from document.models import ActivityLog, Document
 from .models import UserProfileInfo
 
-
-class RegisterView(CreateView):
-    form_class = UserCreateForm
-    template_name = 'accounts/register.html'
-    success_url = reverse_lazy('login')
-
-    def form_valid(self, form):
-        user = form.save()
-        user_profile = UserProfileInfo(user=user)
-        user_profile.save()
-        return super(RegisterView, self).form_valid(form)
+token_generator = PasswordResetTokenGenerator()
 
 
 class UserDetail(DetailView):
@@ -98,7 +94,6 @@ def show_adminpage(request, pk, template='accounts/admin_page.html', extra_conte
     if request.method == 'POST':
         action = request.POST.get('action')
         action_approved = request.POST.get('action-approved')
-        print(request.POST.get('action-approved'))
         if action:
             checkbox = request.POST.getlist('checkbox')
             documents = Document.objects.filter(id__in=checkbox)
@@ -106,12 +101,15 @@ def show_adminpage(request, pk, template='accounts/admin_page.html', extra_conte
                 context['no_selected'] = True
                 return render(request, template, context=context)
             if action == 'Delete':
-                for doc in documents:
-                    doc.delete()
+                documents.delete()
                 context['deleted'] = True
                 return render(request, template, context=context)
             else:
                 documents.update(approve=True)
+                activites = []
+                for doc in documents:
+                    activites.append(ActivityLog(user=request.user, document=doc, verb='approved'))
+                ActivityLog.objects.bulk_create(activites)
                 context['approved'] = True
                 return render(request, template, context=context)
         else:
@@ -122,6 +120,10 @@ def show_adminpage(request, pk, template='accounts/admin_page.html', extra_conte
             documents = Document.objects.filter(id__in=checkbox_approve)
             if action_approved == 'Unapprove selected':
                 documents.update(approve=False)
+                activites = []
+                for doc in documents:
+                    activites.append(ActivityLog(user=request.user, document=doc, verb='unapproved'))
+                ActivityLog.objects.bulk_create(activites)
                 context['unapproved'] = True
             else:
                 for doc in documents:
@@ -129,3 +131,57 @@ def show_adminpage(request, pk, template='accounts/admin_page.html', extra_conte
                 context['deleted_approve'] = True
                 return render(request, template, context=context)
     return render(request, template, context=context)
+
+
+def send_email(request, user, email):
+    current_site = get_current_site(request)
+    message = render_to_string('accounts/acc_active_email.html', {
+        'user': user,
+        'domain': current_site.domain,
+        'pk': user.pk,
+        'token': token_generator.make_token(user),
+    })
+    mail_subject = 'Active your it-document account'
+    email_message = EmailMessage(mail_subject, message, to=[email])
+    email_message.send()
+
+
+def sign_up(request):
+    resend_email = request.GET.get('resend')
+    if resend_email:
+        user = get_object_or_404(User, email=resend_email)
+        send_email(request, user, resend_email)
+        context = {
+            'email': resend_email,
+            'resend': True
+        }
+        return render(request, 'accounts/complete_sign_up.html', context)
+    if request.method == 'POST':
+        form = UserCreateForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            is_email_exist = User.objects.filter(email=user.email).exists()
+            if is_email_exist:
+                form.add_error('email', 'This email is already taken!')
+                return render(request, 'accounts/register.html', {'form': form})
+            user.is_active = False
+            user.save()
+            email = form.cleaned_data.get('email')
+            user_profile = UserProfileInfo(user=user)
+            user_profile.save()
+            send_email(request, user, email)
+            return render(request, 'accounts/complete_sign_up.html', {'email': email})
+    else:
+        form = UserCreateForm()
+    return render(request, 'accounts/register.html', {'form': form})
+
+
+def activate(request, pk, token):
+    user = get_object_or_404(User, pk=pk)
+    if token_generator.check_token(user, token):
+        user.is_active = True
+        user.save()
+        login(request, user)
+        return redirect('index')
+    else:
+        return HttpResponse('Activation link is invalid!')

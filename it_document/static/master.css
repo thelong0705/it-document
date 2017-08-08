@@ -403,3 +403,7 @@ figure.thumb {
 #bookmark-btn {
     margin-left: 10px;
 }
+
+.glyphicon-star{
+    color: lightgreen;
+}

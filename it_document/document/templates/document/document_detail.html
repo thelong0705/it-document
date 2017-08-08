@@ -113,7 +113,7 @@
             let api_url = `/documents/api/comment/`;
             if (window.event.keyCode === 13 && !event.shiftKey) {
                 let content = $("#comment").val();
-                if (content !== null && content !== ``) {
+                if (content) {
                     $(`.loader-comment`).show();
                     $.ajax({
                         url: api_url,
@@ -141,11 +141,25 @@
                                 .insertAfter("#comment-box");
                         },
                         complete: function () {
-                             $(`.loader-comment`).hide();
+                            $(`.loader-comment`).hide();
                         },
-                        error: function (error) {
+                        statusCode: {
+                            400: function () {
+                                alert(`Bad request`);
+                            },
+                            404: function () {
+                                alert(`Not found`);
+                            },
+                            500: function () {
+                                alert(`Internal server error`);
+                            },
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            if (XMLHttpRequest.readyState === 0) {
+                                alert(`No connection`);
+                            }
                         }
-                    })
+                    });
                 }
             }
         }
@@ -170,10 +184,23 @@
                 complete: function (data) {
                     $(`.loader`).hide()
                 },
-                error: function (error) {
-                    alert(`Error! ${error}`)
+                statusCode: {
+                    400: function () {
+                        alert(`Bad request`);
+                    },
+                    404: function () {
+                        alert(`Not found`);
+                    },
+                    500: function () {
+                        alert(`Internal server error`);
+                    },
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    if (XMLHttpRequest.readyState === 0) {
+                        alert(`No connection`);
+                    }
                 }
-            })
+            });
         });
     </script>
     <script>
@@ -189,10 +216,23 @@
                     alert(`Delete successfully!`);
                     location.href = `/`
                 },
-                error: function (error) {
-                    alert(`Error! ${error}`)
+                statusCode: {
+                    400: function () {
+                        alert(`Bad request`);
+                    },
+                    404: function () {
+                        alert(`Not found`);
+                    },
+                    500: function () {
+                        alert(`Internal server error`);
+                    },
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    if (XMLHttpRequest.readyState === 0) {
+                        alert(`No connection`);
+                    }
                 }
-            })
+            });
         })
     </script>
     <script>
@@ -214,10 +254,23 @@
                 complete: function (data) {
                     $(`.loader`).hide();
                 },
-                error: function (error) {
-                    alert(`Error! ${error}`)
+                statusCode: {
+                    400: function () {
+                        alert(`Bad request`);
+                    },
+                    404: function () {
+                        alert(`Not found`);
+                    },
+                    500: function () {
+                        alert(`Internal server error`);
+                    },
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    if (XMLHttpRequest.readyState === 0) {
+                        alert(`No connection`);
+                    }
                 }
-            })
+            });
         });
     </script>
 {% endblock %}

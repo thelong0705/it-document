@@ -4,6 +4,8 @@ from django import forms
 
 
 class UserCreateForm(UserCreationForm):
+    email = forms.EmailField(max_length=200)
+
     class Meta:
         fields = ['username', 'email', 'password1', 'password2']
         model = User
