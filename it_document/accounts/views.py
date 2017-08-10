@@ -1,5 +1,6 @@
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.contrib.sites.shortcuts import get_current_site
@@ -7,12 +8,11 @@ from django.core.mail import EmailMessage
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 from django.template.loader import render_to_string
-from django.urls import reverse_lazy, reverse
-from django.utils.encoding import force_bytes, force_text
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.views.generic import CreateView, DetailView, UpdateView, TemplateView
+from django.urls import reverse
+from django.views.generic import DetailView, UpdateView, TemplateView
 from el_pagination.decorators import page_template
-from accounts.forms import UserCreateForm, UserLoginForm
+
+from accounts.forms import UserCreateForm, UserLoginForm, ForgotPasswordForm, ChangePasswordForm
 from document.models import ActivityLog, Document
 from .models import UserProfileInfo
 
@@ -25,7 +25,7 @@ class UserDetail(DetailView):
     context_object_name = 'user_profile'
 
 
-class UpdateUserProfile(UpdateView):
+class UpdateUserProfile(LoginRequiredMixin, UpdateView):
     model = UserProfileInfo
     fields = ('avatar', 'biography')
     template_name = 'accounts/user_update.html'
@@ -45,6 +45,14 @@ def user_login(request):
         return HttpResponseRedirect(reverse('index'))
     form = UserLoginForm()
     if request.method != 'POST':
+        username = request.GET.get('username')
+        if username:
+            print(username)
+            context = {
+                'form': form,
+                'username': username
+            }
+            return render(request, 'accounts/login.html', context=context)
         return render(request, 'accounts/login.html', {'form': form})
     form = UserLoginForm(request.POST)
     if form.is_valid():
@@ -106,9 +114,9 @@ def show_adminpage(request, pk, template='accounts/admin_page.html', extra_conte
                 return render(request, template, context=context)
             else:
                 documents.update(approve=True)
-                activites = []
-                for doc in documents:
-                    activites.append(ActivityLog(user=request.user, document=doc, verb='approved'))
+                activites = (
+                    ActivityLog(user=request.user, document=doc, verb='approved') for doc in documents
+                )
                 ActivityLog.objects.bulk_create(activites)
                 context['approved'] = True
                 return render(request, template, context=context)
@@ -120,9 +128,9 @@ def show_adminpage(request, pk, template='accounts/admin_page.html', extra_conte
             documents = Document.objects.filter(id__in=checkbox_approve)
             if action_approved == 'Unapprove selected':
                 documents.update(approve=False)
-                activites = []
-                for doc in documents:
-                    activites.append(ActivityLog(user=request.user, document=doc, verb='unapproved'))
+                activites = (
+                    ActivityLog(user=request.user, document=doc, verb='unapproved') for doc in documents
+                )
                 ActivityLog.objects.bulk_create(activites)
                 context['unapproved'] = True
             else:
@@ -142,6 +150,19 @@ def send_email(request, user, email):
         'token': token_generator.make_token(user),
     })
     mail_subject = 'Active your it-document account'
+    email_message = EmailMessage(mail_subject, message, to=[email])
+    email_message.send()
+
+
+def send_email_change_pass(request, user, email):
+    current_site = get_current_site(request)
+    message = render_to_string('accounts/acc_change_password_email.html', {
+        'user': user,
+        'domain': current_site.domain,
+        'pk': user.pk,
+        'token': token_generator.make_token(user),
+    })
+    mail_subject = 'Change your IT-Document account password'
     email_message = EmailMessage(mail_subject, message, to=[email])
     email_message.send()
 
@@ -185,3 +206,67 @@ def activate(request, pk, token):
         return redirect('index')
     else:
         return HttpResponse('Activation link is invalid!')
+
+
+def forgot_pass(request):
+    resend_email = request.GET.get('resend')
+    if resend_email:
+        user = get_object_or_404(User, email=resend_email)
+        send_email_change_pass(request, user, resend_email)
+        context = {
+            'email': resend_email,
+            'resend': True
+        }
+        return render(request, 'accounts/complete_change_pass.html', context)
+    if request.method == 'POST':
+        form = ForgotPasswordForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            email = form.cleaned_data['email']
+            if not username and not email:
+                form.add_error(None, 'Email or username must be filled')
+                return render(request, 'accounts/forgot_password_form.html', {'form': form})
+            if username and email:
+                user = User.objects.get(username=username)
+                if user.email != email:
+                    form.add_error(None, 'Email and username doesnt match')
+                    return render(request, 'accounts/forgot_password_form.html', {'form': form})
+            if username:
+                try:
+                    user = User.objects.get(username=username)
+                except User.DoesNotExist:
+                    form.add_error('username', 'This user isnt exist')
+                    return render(request, 'accounts/forgot_password_form.html', {'form': form})
+                send_email_change_pass(request, user, user.email)
+                return render(request, 'accounts/complete_change_pass.html', {'email': user.email})
+            if email:
+                try:
+                    user = User.objects.get(email=email)
+                except User.DoesNotExist:
+                    form.add_error('email', 'This email doensnt match with any user')
+                    return render(request, 'accounts/forgot_password_form.html', {'form': form})
+                send_email_change_pass(request, user, user.email)
+                return render(request, 'accounts/complete_change_pass.html', {'email': user.email})
+    else:
+        form = ForgotPasswordForm()
+        return render(request, 'accounts/forgot_password_form.html', {'form': form})
+
+
+def change_pass(request, pk, token):
+    user = get_object_or_404(User, pk=pk)
+    if request.method == 'POST':
+        form = ChangePasswordForm(request.POST)
+        if form.is_valid():
+            password1 = form.cleaned_data['password1']
+            password2 = form.cleaned_data['password2']
+            if password1 != password2:
+                form.add_error(None, 'Password confirm doesnt match')
+                return render(request, 'accounts/change_password_form.html', {'form': form})
+            user.set_password(password1)
+            user.save()
+            return HttpResponseRedirect('/accounts/login/?username={}'.format(user.username))
+    else:
+        if token_generator.check_token(user, token):
+            form = ChangePasswordForm()
+            return render(request, 'accounts/change_password_form.html', {'form': form})
+    return HttpResponse('Change password link is invalid!')

@@ -1,5 +1,5 @@
-from django.conf import settings
-from django.conf.urls import url, include
+from django.conf.urls import url
+
 from . import views
 
 urlpatterns = [
@@ -13,7 +13,8 @@ urlpatterns = [
     url(r'^bookmark/(?P<pk>\d+)/$', views.bookmark, name='document_bookmark'),
     url(r'^approve/(?P<pk>\d+)/$', views.approve, name='document_approve'),
     url(r'^rate/$', views.rate, name='document_rate'),
-    url(r'^api/', include(views.router.urls, namespace='api')),
     url(r'^download/(?P<path>.*)/$', views.download, name='download'),
-
+    url(r'api/comment/$', views.comment, name='comment'),
+    url(r'api/update-comment/$', views.update_comment, name='update_comment'),
+    url(r'comment/delete/(?P<pk>\d+)/$', views.delete_comment, name='delete_comment')
 ]

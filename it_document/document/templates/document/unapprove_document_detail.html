@@ -133,10 +133,11 @@
                 data: {},
                 success: function (data) {
                     alert(`Delete successfully!`);
-                    if (`{{ user.is_superuser }}` === `True`)
+                    {% if user.is_superuser %}
                         location.href = `/accounts/admin/{{ user.userprofileinfo.id }}/`;
-                    else
-                        location.href = `/`
+                    {% else %}
+                        location.href = `/`;
+                    {% endif %}
                 },
                 statusCode: {
                     400: function () {

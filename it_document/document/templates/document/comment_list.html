@@ -6,15 +6,42 @@
                 <img class="media-object img-circle" src="{{ comment.user.userprofileinfo.avatar.url }}"
                      alt="User image" width="80px" height="80px">
             </div>
-            <div class="media-body">
+            <div class="media-body" id="{{ comment.pk }}">
                 <h4 style="display: inline" class="media-heading"><strong>{{ comment.user|title }}</strong></h4>
                 at
                 {% if comment.submit_date %}
                     {{ comment.submit_date|timesince }} ago
                 {% else %}
-                    2 days ago
+                    a long time ago
                 {% endif %}
-                {{ comment.content|linebreaks }}
+                <div style="float: right">
+                    {% if user == comment.user %}
+                        <a class="edit-comment"><span class="glyphicon-edit glyphicon"></span></a>
+                        <a data-toggle="modal" data-target="#myModal-{{ comment.pk }}"> <span class="glyphicon glyphicon-remove"></span>
+                        </a>
+                        <!-- Modal -->
+                        <div class="modal fade" id="myModal-{{ comment.pk }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span></button>
+                                        <h4 class="modal-title" id="myModalLabel">Delete warning</h4>
+                                    </div>
+                                    <div class="modal-body">
+                                        Are you sure you want to delete this?
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel
+                                        </button>
+                                        <a href="{% url 'delete_comment' comment.pk %}" type="button" class="btn btn-danger">Yes im sure!</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+                <br> <span class="current-comment">{{ comment.content }}</span>
             </div>
         </div>
     {% endfor %}
@@ -22,3 +49,79 @@
         {% show_more "Load more comments" %}
     </div>
 </div>
+<script>
+    let entityMap = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;',
+        '/': '&#x2F;',
+        '`': '&#x60;',
+        '=': '&#x3D;'
+    };
+
+    function escapeHtml(string) {
+        return String(string).replace(/[&<>"'`=\/]/g, function fromEntityMap(s) {
+            return entityMap[s];
+        });
+    }
+
+    function editComment(commentID) {
+        if (window.event.keyCode === 13 && !event.shiftKey) {
+            let api_url = `/documents/api/update-comment/`;
+            let textarea = $(`#edit-comment`);
+            let content = textarea.val();
+            let div = textarea.parents(`div`).eq(2);
+            if (content) {
+                $(`.loader-comment`).show();
+                $.ajax({
+                    url: api_url,
+                    method: "POST",
+                    data: {
+                        'comment_id': commentID,
+                        'content': content,
+                        'csrfmiddlewaretoken': '{{ csrf_token }}'
+                    },
+                    success: function (data) {
+                        content = escapeHtml(content);
+                        div.html(
+                            ` <h4 style="display: inline" class="media-heading"><strong>{{ user|title }}</strong></h4>
+                                        (edited)</br>
+                                       <div style="float: right">
+                                        <a class="edit-comment"><span class="glyphicon-edit glyphicon"></span></a>
+                                        <a><span class="glyphicon glyphicon-remove"></span></a>
+                                     </div>
+                                    <span class="current-comment">${content}</span>`
+                        );
+                        div.id = commentID;
+                    },
+                    complete: function () {
+                        $(`.loader-comment`).hide();
+                    }
+                });
+            }
+        }
+    }
+
+    $(`.comment-container`).on(`click`, `.edit-comment`, function (e) {
+        e.preventDefault();
+        let div = $(this).parents(`div`).eq(1);
+        let commentID = div.attr(`id`);
+        let currentContent = div.find(`.current-comment`).text();
+        div.html(`
+
+                            <div class="media-body" id="${commentID}">
+                                <div class="form-group">
+                                    <h4 class="media-heading"><strong>{{ comment.user|title }}</strong></h4>
+                                    <textarea class="form-control"
+                                    onkeypress="editComment(${commentID});"
+                                    rows="3" id="edit-comment"
+                                    style="white-space: pre-wrap;">${currentContent}</textarea>
+                                </div>
+                            </div>
+                     `
+        );
+    })
+</script>
+

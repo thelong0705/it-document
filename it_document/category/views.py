@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.db.models import Count
 from django.http import JsonResponse
@@ -9,6 +10,7 @@ from .models import Category
 from rest_framework import status
 
 
+@login_required()
 @require_http_methods(['POST'])
 def create_category(request):
     name = request.POST.get('name')

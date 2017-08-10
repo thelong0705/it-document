@@ -63,28 +63,31 @@
             </div>
         </div>
     </div>
-    <div class="container">
-        <h1>Comments <span class="loader-comment"></span></h1>
-        <hr/>
-        {% if user.is_authenticated %}
-            <div class="media" id="comment-box">
-                <div class="media-left">
-                    <img class="media-object img-circle" src="{{ user.userprofileinfo.avatar.url }}" alt="User image"
-                         width="80px" height="80px">
-                </div>
-                <div class="media-body">
-                    <div class="form-group">
-                        <h4 class="media-heading"><strong>{{ comment.user|title }}</strong></h4>
-                        <textarea class="form-control" rows="3" id="comment" onkeypress="comment();"
-                                  placeholder="Press enter to insert comment shift-enter to make a new line..."></textarea>
+    <div class="comment-container">
+        <div class="container">
+            <h1>Comments <span class="loader-comment"></span></h1>
+            <hr/>
+            {% if user.is_authenticated %}
+                <div class="media" id="comment-box">
+                    <div class="media-left">
+                        <img class="media-object img-circle" src="{{ user.userprofileinfo.avatar.url }}"
+                             alt="User image" width="80px" height="80px">
+                    </div>
+                    <div class="media-body">
+                        <div class="form-group">
+                            <h4 class="media-heading"><strong>{{ comment.user|title }}</strong></h4>
+                            <textarea class="form-control" rows="3" id="comment" onkeypress="comment();"
+                                      placeholder="Press enter to insert comment shift-enter to make a new line..."></textarea>
+                        </div>
                     </div>
                 </div>
-            </div>
-        {% endif %}
+            {% endif %}
+        </div>
+        <div class="endless_page_template container">
+            {% include 'document/comment_list.html' %}
+        </div>
     </div>
-    <div class="endless_page_template container">
-        {% include 'document/comment_list.html' %}
-    </div>
+
     <div class="container">
         <h1 id="recommend">Recommendations</h1>
         <hr>
@@ -92,23 +95,6 @@
     </div>
     <br/><br/>
     <script>
-        let entityMap = {
-            '&': '&amp;',
-            '<': '&lt;',
-            '>': '&gt;',
-            '"': '&quot;',
-            "'": '&#39;',
-            '/': '&#x2F;',
-            '`': '&#x60;',
-            '=': '&#x3D;'
-        };
-
-        function escapeHtml(string) {
-            return String(string).replace(/[&<>"'`=\/]/g, function fromEntityMap(s) {
-                return entityMap[s];
-            });
-        }
-
         function comment() {
             let api_url = `/documents/api/comment/`;
             if (window.event.keyCode === 13 && !event.shiftKey) {
@@ -120,7 +106,6 @@
                         method: "POST",
                         data: {
                             'document':{{ document.id }},
-                            'user': {{ user.id}},
                             'content': content,
                             'csrfmiddlewaretoken': '{{ csrf_token }}',
                         },
@@ -132,10 +117,14 @@
                                   <img class="media-object img-circle" src="{{ user.userprofileinfo.avatar.url }}"
                                        alt="User image" width="80px" height="80px">
                                 </div>
-                                <div class="media-body">
+                                <div class="media-body" id=${data.id}>
                                     <h4 style="display: inline" class="media-heading"><strong>{{ user|title }}</strong></h4>
                                     a second ago </br>
-                                    <span style="white-space: pre-wrap;">${content}</span>
+                                       <div style="float: right">
+                                        <a class="edit-comment"><span class="glyphicon-edit glyphicon"></span></a>
+                                        <a><span class="glyphicon glyphicon-remove"></span></a>
+                                     </div>
+                                   <span class="current-comment">${content}</span>
                                 </div>
                              </div>`)
                                 .insertAfter("#comment-box");

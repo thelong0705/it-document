@@ -1,7 +1,6 @@
 from django.forms import ModelForm
-from .models import Document
-from django import forms
-from category.models import Category
+
+from .models import Document, UserRateDocument
 
 
 class DocumentCreateForm(ModelForm):
@@ -19,3 +18,4 @@ class DocumentCreateForm(ModelForm):
         self.fields['review'].label = 'Review*'
         self.fields['topic'].widget.attrs = {'id': 'category-choice'}
         self.fields['file'].label = 'File (pdf only)'
+

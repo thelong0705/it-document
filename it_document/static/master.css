@@ -407,3 +407,7 @@ figure.thumb {
 .glyphicon-star{
     color: lightgreen;
 }
+
+.current-comment{
+    white-space: pre-wrap;
+}

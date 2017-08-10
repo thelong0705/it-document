@@ -1,6 +1,6 @@
+from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from django import forms
 
 
 class UserCreateForm(UserCreationForm):
@@ -15,3 +15,13 @@ class UserLoginForm(forms.Form):
     username = forms.CharField()
     password = forms.CharField()
 
+
+class ForgotPasswordForm(forms.Form):
+    username = forms.CharField(required=False)
+    email = forms.EmailField(required=False)
+
+
+class ChangePasswordForm(UserCreationForm):
+    class Meta:
+        model = User
+        fields = ['password1', 'password2']

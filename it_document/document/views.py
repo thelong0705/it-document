@@ -1,21 +1,19 @@
 import os
+
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.conf import settings
 from django.db.models import Avg
-from django.http import HttpResponseRedirect, JsonResponse, HttpResponse, Http404, HttpResponseNotFound
+from django.http import HttpResponseRedirect, JsonResponse, HttpResponse, Http404
 from django.shortcuts import render, get_object_or_404
-from django.urls import reverse_lazy, reverse
+from django.urls import reverse
 from django.views.decorators.http import require_http_methods
-from django.views.generic import ListView, CreateView, TemplateView, DetailView, UpdateView, DeleteView
-from rest_framework import authentication, permissions, status
-from rest_framework.generics import ListCreateAPIView
-from rest_framework.routers import DefaultRouter
-from .models import Document, Comment, UserRateDocument, ActivityLog, Bookmark
-from .forms import DocumentCreateForm
-from rest_framework import viewsets, serializers
+from django.views.generic import CreateView, UpdateView
 from el_pagination.decorators import page_template
-from el_pagination.views import AjaxListView
+from rest_framework import status
+
+from .forms import DocumentCreateForm
+from .models import Document, Comment, UserRateDocument, ActivityLog, Bookmark
 
 
 class AddNewDocumentView(LoginRequiredMixin, CreateView):
@@ -32,7 +30,7 @@ class AddNewDocumentView(LoginRequiredMixin, CreateView):
 
 def thank_you(request, pk):
     context = {'pk': pk}
-    return render(request, 'document/thank_you.html',context=context)
+    return render(request, 'document/thank_you.html', context=context)
 
 
 @page_template('document/comment_list.html')
@@ -84,23 +82,6 @@ class DocumentUpdateView(LoginRequiredMixin, UpdateView):
         return reverse('document_detail', kwargs={'pk': self.get_object().id})
 
 
-class CommentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Comment
-        fields = ('user', 'document', 'content')
-
-
-class NewPostCommentAPI(viewsets.GenericViewSet, ListCreateAPIView):
-    authentication_classes = (authentication.SessionAuthentication,)
-    permission_classes = [permissions.IsAuthenticated, ]
-    serializer_class = CommentSerializer
-
-
-router = DefaultRouter()
-router.register('comment', NewPostCommentAPI, base_name='CommentAPI')
-urlpatterns = router.urls
-
-
 @login_required()
 def like(request, pk):
     user = request.user
@@ -124,12 +105,13 @@ def like(request, pk):
     return JsonResponse(data=data)
 
 
-def bookmark(request,pk):
+@login_required()
+def bookmark(request, pk):
     user = request.user
     document = get_object_or_404(Document, pk=pk)
     if not document.approve:
         return render(request, 'accounts/no_permission.html')
-    bookmark_obj, created = Bookmark.objects.get_or_create(user=user,document=document)
+    bookmark_obj, created = Bookmark.objects.get_or_create(user=user, document=document)
     if not created:
         bookmark_obj.delete()
     data = {
@@ -141,9 +123,11 @@ def bookmark(request,pk):
 @login_required()
 @require_http_methods(['POST'])
 def rate(request):
-    rating = request.POST.get('rating')
+    rating = int(request.POST.get('rating'))
     document_id = request.POST.get('document')
     document = get_object_or_404(Document, pk=document_id)
+    if rating < 1 or rating > 5:
+        return HttpResponse('rating must be in range of 1 to 5', status=status.HTTP_400_BAD_REQUEST)
     if not document.approve:
         return render(request, 'accounts/no_permission.html')
     rating_obj, created = UserRateDocument.objects.get_or_create(
@@ -196,6 +180,7 @@ def download(request, path):
     raise Http404
 
 
+@login_required()
 def unapprove_document_detail(request, pk):
     document = get_object_or_404(Document, pk=pk)
     is_owner_or_admin = request.user.is_superuser or request.user == document.posted_user
@@ -220,3 +205,44 @@ def delete_document(request, pk):
         'deleted': True
     }
     return JsonResponse(data=data)
+
+
+@login_required()
+@require_http_methods(['POST'])
+def comment(request):
+    content = request.POST.get('content')
+    document_id = request.POST.get('document')
+    document = get_object_or_404(Document, pk=document_id)
+    if not document.approve:
+        return render(request, 'accounts/no_permission.html', status.HTTP_400_BAD_REQUEST)
+    com = Comment(user=request.user, document=document, content=content)
+    com.save()
+    activity = ActivityLog(
+        user=request.user,
+        document=document,
+        verb='commented',
+    )
+    activity.save()
+    return JsonResponse(data={'id': com.id}, status=status.HTTP_200_OK)
+
+
+@login_required()
+@require_http_methods(['POST'])
+def update_comment(request):
+    comment_id = request.POST.get('comment_id')
+    content = request.POST.get('content')
+    if not content:
+        return HttpResponse('Invalid content', status=status.HTTP_400_BAD_REQUEST)
+    com = get_object_or_404(Comment, id=comment_id)
+    com.content = content
+    com.save()
+    return JsonResponse(data={}, status=status.HTTP_200_OK)
+
+
+@login_required()
+def delete_comment(request, pk):
+    com = get_object_or_404(Comment, pk=pk)
+    if request.user != com.user:
+        return render(request, 'accounts/no_permission.html')
+    com.delete()
+    return HttpResponseRedirect(reverse('document_detail',kwargs={'pk':com.document.id}))
