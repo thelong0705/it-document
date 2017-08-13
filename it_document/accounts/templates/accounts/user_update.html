@@ -1,12 +1,12 @@
-{% extends "base.html" %}
-{% load bootstrap3 %}
-{% block content %}
-    <div class="container">
-        <form method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            <h1>Update Profile</h1>
-            {% bootstrap_form form %}
-            <input type="submit" value="Update">
-        </form>
+{% extends "base.html" %}{% load bootstrap3 %}
+{% block form %}
+    <div class="jumbotron" style="margin-top:20px; margin-bottom: 0">
+        <div class="container">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <h1>Update Profile</h1>
+                {% bootstrap_form form %} <input type="submit" value="Update">
+            </form>
+        </div>
     </div>
 {% endblock %}

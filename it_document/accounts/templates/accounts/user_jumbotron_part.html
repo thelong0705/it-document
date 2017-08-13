@@ -16,7 +16,7 @@
                         {% endif %}
                         {{ user_profile.biography }}</p><br>
                 </div>
-                <p class="w3-block w3-dark-grey" style="padding: 10px;">
+                <div class="w3-block w3-dark-grey" style="padding: 10px;">
                     <span class="text-span glyphicon glyphicon-upload small"></span> {{ user_profile.user.document_set.count }}
                     posts
                     {% if user == user_profile.user %}
@@ -31,9 +31,9 @@
                             <a class="btn btn-primary" id="deactivate-button" style="float: right;"><span
                                 class="glyphicon glyphicon-edit"></span>Activate</a>
                         {% endif %}
-                        <div class="star-loader" style="float: right"></div>
+                        <div class="star-loader" style="float: right; margin-right: 5px;"></div>
                     {% endif %}
-                </p>
+                </div>
             </div>
         </div>
         <div class="col-lg-7">
