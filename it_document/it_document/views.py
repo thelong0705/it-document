@@ -1,12 +1,7 @@
 from django.db.models import Count
-from django.http import HttpResponseRedirect
-from django.shortcuts import render, render_to_response
-from django.template import RequestContext
-from django.urls import reverse
+from django.shortcuts import render
 from django.views.generic import TemplateView
 from el_pagination.decorators import page_template
-
-from category.models import Category
 from document.models import Document
 
 
@@ -23,13 +18,13 @@ def search(request, keyword):
 @page_template('document/top_6_latest.html', key='latest')
 def entry_index(request, template='index.html', extra_context=None):
     context = {
-        'documents': Document.objects.annotate(
+        'documents': Document.objects.filter(approve=True).annotate(
             num_likes=Count('liked_by')
-        ).order_by('-num_likes', '-rating').exclude(approve=False)[:12],
-        'documents_top_rating': Document.objects.order_by('-rating').annotate(
-            num_likes=Count('liked_by')
-        ).order_by('-rating', '-num_likes').exclude(approve=False)[:12],
-        'documents_latest': Document.objects.all().order_by('-id').exclude(approve=False)[:12]
+        ).order_by('-num_likes', '-rating')[:12],
+        'documents_top_rating': Document.objects.order_by('-rating').filter(approve=True).annotate(
+            num_votes=Count('userratedocument')
+        ).filter(num_votes__gt=1).order_by('-rating', '-num_votes')[:12],
+        'documents_latest': Document.objects.filter(approve=True).order_by('-id')[:12]
     }
     if extra_context is not None:
         context.update(extra_context)

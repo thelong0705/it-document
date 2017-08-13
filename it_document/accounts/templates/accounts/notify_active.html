@@ -1,0 +1,5 @@
+{% autoescape off %}
+Hi {{ user.username }},
+Your document has been reactivated by {{ admin.username }}. Now you can login
+    http://{{ domain }}{% url 'login' %}
+{% endautoescape %}

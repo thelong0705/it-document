@@ -1,12 +1,12 @@
 {% load el_pagination_tags %}{% paginate 12 documents using "unaprrove_documents_page" %}
 {% if deleted %}
-    <p>Documents are deleted successfully !</p>
+   <div class="alert alert-info" role="alert">Documents are deleted successfully !</div>
 {% endif %}
 {% if approved %}
-    <p>Documents are approved successfully !</p>
+    <div class="alert alert-info" role="alert">Documents are approved successfully !</div>
 {% endif %}
 {% if no_selected %}
-    <p id="no-selected">Items must be selected in order to perform actions on them</p>
+    <div class="alert alert-danger" role="alert">Items must be selected in order to perform actions on them</div>
 {% endif %}
 <form method="post">
     {% csrf_token %}

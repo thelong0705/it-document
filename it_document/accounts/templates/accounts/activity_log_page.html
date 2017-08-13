@@ -7,7 +7,7 @@
             {% if log.document.approve %}
             <a href="{% url 'document_detail' log.document.id %}">{{ log.document.title|title }}</a>
             {% else %}
-                a document( not yet approved )
+                a document
             {% endif %}
         {% endif %}
         {% if log.content %}

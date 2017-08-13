@@ -1,10 +1,10 @@
 from django.contrib.auth.models import User
-from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.db import models
 from django.db.models import Avg
-from django.utils import timezone
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
+from django.utils import timezone
 
 from category.models import Category
 
@@ -62,6 +62,7 @@ class Comment(models.Model):
     user = models.ForeignKey(User)
     document = models.ForeignKey(Document)
     content = models.TextField()
+    is_edited = models.BooleanField(default=False);
     submit_date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -114,10 +115,22 @@ def delete_bookmark_handler(sender, instance, **kwargs):
 
 
 @receiver(post_save, sender=Comment)
-def create_comment_handler(sender, instance, **kwargs):
+def create_comment_handler(sender, instance, created, **kwargs):
     user = instance.user
     document = instance.document
-    activity = ActivityLog(user=user, document=document, verb='commented')
+    if created:
+        activity = ActivityLog(user=user, document=document, verb='commented at')
+        activity.save()
+    else:
+        activity = ActivityLog(user=user, document=document, verb='edited a comment at')
+        activity.save()
+
+
+@receiver(post_delete, sender=Comment)
+def comment_delete_handler(sender, instance, **kwargs):
+    user = instance.user
+    document = instance.document
+    activity = ActivityLog(user=user, document=document, verb='deleted a comment at')
     activity.save()
 
 

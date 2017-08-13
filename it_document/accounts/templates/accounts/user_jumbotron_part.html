@@ -23,6 +23,16 @@
                         <a href="{% url 'update_user_detail' user_profile.id %}" class="btn btn-primary"
                            style="float: right;"><span class="glyphicon glyphicon-edit"></span> Edit profile</a>
                     {% endif %}
+                    {% if user.is_superuser and not user_profile.user.is_superuser %}
+                        {% if user_profile.user.is_active %}
+                        <a class="btn btn-primary" id="deactivate-button" style="float: right;"><span
+                                class="glyphicon glyphicon-edit"></span>Deactivate</a>
+                        {% else %}
+                            <a class="btn btn-primary" id="deactivate-button" style="float: right;"><span
+                                class="glyphicon glyphicon-edit"></span>Activate</a>
+                        {% endif %}
+                        <div class="star-loader" style="float: right"></div>
+                    {% endif %}
                 </p>
             </div>
         </div>
@@ -34,3 +44,42 @@
         </div>
     </div>
 </div>
+
+<script>
+    $(`#deactivate-button`).click(function (e) {
+        e.preventDefault();
+        let api_url = `/accounts/deactivate/{{ user_profile.pk }}/`;
+        $(`.star-loader`).show();
+        $.ajax({
+            url: api_url,
+            method: "GET",
+            data: {},
+            success: function (data) {
+                if (data.is_active) {
+                    $(`#deactivate-button`).text(`Deactivate`);
+                } else {
+                    $(`#deactivate-button`).text(`Activate`)
+                }
+            },
+            complete: function (data) {
+                $(`.star-loader`).hide();
+            },
+            statusCode: {
+                400: function () {
+                    alert(`Bad request`);
+                },
+                404: function () {
+                    alert(`Not found`);
+                },
+                500: function () {
+                    alert(`Internal server error`);
+                },
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                if (XMLHttpRequest.readyState === 0) {
+                    alert(`No connection`);
+                }
+            }
+        });
+    });
+</script>

@@ -7,20 +7,30 @@
                      alt="User image" width="80px" height="80px">
             </div>
             <div class="media-body" id="{{ comment.pk }}">
-                <h4 style="display: inline" class="media-heading"><strong>{{ comment.user|title }}</strong></h4>
-                at
-                {% if comment.submit_date %}
-                    {{ comment.submit_date|timesince }} ago
-                {% else %}
-                    a long time ago
+                <h4 style="display: inline" class="media-heading">
+                    <a href="{% url 'user_detail' comment.user.userprofileinfo.pk%}">
+                        <strong>{{ comment.user|title }}</strong></a></h4>
+
+                <span class="comment-date">
+                      at
+                    {% if comment.submit_date %}
+                        {{ comment.submit_date|timesince }} ago
+                    {% else %}
+                        a long time ago
+                    {% endif %}
+                </span>
+                {% if comment.is_edited %}
+                    (edited)
                 {% endif %}
                 <div style="float: right">
                     {% if user == comment.user %}
                         <a class="edit-comment"><span class="glyphicon-edit glyphicon"></span></a>
-                        <a data-toggle="modal" data-target="#myModal-{{ comment.pk }}"> <span class="glyphicon glyphicon-remove"></span>
-                        </a>
-                        <!-- Modal -->
-                        <div class="modal fade" id="myModal-{{ comment.pk }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                    {% endif %}
+                    {% if user == comment.user or user.is_superuser %}
+                        <a class="remove-comment" data-toggle="modal" data-target="#myModal-{{ comment.pk }}"> <span
+                                class="glyphicon glyphicon-remove"></span> </a>
+                        <div class="modal fade" id="myModal-{{ comment.pk }}" tabindex="-1" role="dialog"
+                             aria-labelledby="myModalLabel">
                             <div class="modal-dialog" role="document">
                                 <div class="modal-content">
                                     <div class="modal-header">
@@ -34,7 +44,8 @@
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-default" data-dismiss="modal">Cancel
                                         </button>
-                                        <a href="{% url 'delete_comment' comment.pk %}" type="button" class="btn btn-danger">Yes im sure!</a>
+                                        <a href="{% url 'delete_comment' comment.pk %}" type="button"
+                                           class="btn btn-danger">Yes im sure!</a>
                                     </div>
                                 </div>
                             </div>
@@ -44,6 +55,8 @@
                 <br> <span class="current-comment">{{ comment.content }}</span>
             </div>
         </div>
+    {% empty %}
+        <h4>There is no comments for this document yet</h4>
     {% endfor %}
     <div style="margin-top: 15px;">
         {% show_more "Load more comments" %}
@@ -69,10 +82,14 @@
 
     function editComment(commentID) {
         if (window.event.keyCode === 13 && !event.shiftKey) {
+            $(`.edit-comment`).show();
+            $(`.remove-comment`).show();
             let api_url = `/documents/api/update-comment/`;
             let textarea = $(`#edit-comment`);
             let content = textarea.val();
             let div = textarea.parents(`div`).eq(2);
+            let cancelEdit = $(`#cancel-edit`);
+            let date = cancelEdit.attr(`date`);
             if (content) {
                 $(`.loader-comment`).show();
                 $.ajax({
@@ -85,43 +102,120 @@
                     },
                     success: function (data) {
                         content = escapeHtml(content);
-                        div.html(
-                            ` <h4 style="display: inline" class="media-heading"><strong>{{ user|title }}</strong></h4>
-                                        (edited)</br>
-                                       <div style="float: right">
-                                        <a class="edit-comment"><span class="glyphicon-edit glyphicon"></span></a>
-                                        <a><span class="glyphicon glyphicon-remove"></span></a>
-                                     </div>
-                                    <span class="current-comment">${content}</span>`
-                        );
+                        div.html(`
+                        <h4 style="display: inline" class="media-heading">
+                            <a href="{% url 'user_detail' user.userprofileinfo.pk %}">
+                                <strong>{{ user|title }}</strong></a></h4>
+                        <span class="comment-date">${date}</span>(edited)</br>
+                        <div style="float: right">
+                            <a class="edit-comment"><span class="glyphicon-edit glyphicon"></span></a>
+                            <a class="remove-comment" data-toggle="modal" data-target="#myModal-${commentID}">
+                            <span class="glyphicon glyphicon-remove"></span></a>
+                            </div>
+                            <div class="modal fade" id="myModal-${commentID}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span></button>
+                                            <h4 class="modal-title" id="myModalLabel">Delete warning</h4>
+                                        </div>
+                                        <div class="modal-body">
+                                            Are you sure you want to delete this?
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel
+                                            </button>
+                                            <a href="/documents/comment/delete/${commentID}/" type="button" class="btn btn-danger">Yes im
+                                                sure!</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        <span class="current-comment">${content}</span>`);
                         div.id = commentID;
                     },
                     complete: function () {
                         $(`.loader-comment`).hide();
+                    },
+                    statusCode: {
+                        400: function () {
+                            alert(`Bad request`);
+                        },
+                        404: function () {
+                            alert(`Not found`);
+                        },
+                        500: function () {
+                            alert(`Internal server error`);
+                        },
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        if (XMLHttpRequest.readyState === 0) {
+                            alert(`No connection`);
+                        }
                     }
                 });
             }
         }
     }
 
-    $(`.comment-container`).on(`click`, `.edit-comment`, function (e) {
+    commentContainer = $(`.comment-container`);
+    commentContainer.on(`click`, `.edit-comment`, function (e) {
         e.preventDefault();
+        $(`.edit-comment`).hide();
+        $(`.remove-comment`).hide();
         let div = $(this).parents(`div`).eq(1);
         let commentID = div.attr(`id`);
         let currentContent = div.find(`.current-comment`).text();
+        let date = div.find(`.comment-date`).text();
+        div.html(`<div class="media-body" id="${commentID}">
+                    <div class="form-group">
+                        <textarea class="form-control"
+                                  onkeypress="editComment(${commentID});"
+                                  rows="3" id="edit-comment"
+                                  style="white-space: pre-wrap;">${currentContent}</textarea>
+                        <a id="cancel-edit" data-href="${currentContent}"
+                           date="${date}" commentID="${commentID}">Cancel</a>
+                    </div>
+                </div>`);
+    });
+    commentContainer.on(`click`, `#cancel-edit`, function (e) {
+        $(`.edit-comment`).show();
+        $(`.remove-comment`).show();
+        let cancelEdit = $(`#cancel-edit`);
+        let prevContent = cancelEdit.attr(`data-href`);
+        let date = cancelEdit.attr(`date`);
+        let commentID = cancelEdit.attr(`commentID`);
+        let textarea = $(`#edit-comment`);
+        let div = textarea.parents(`div`).eq(2);
         div.html(`
-
-                            <div class="media-body" id="${commentID}">
-                                <div class="form-group">
-                                    <h4 class="media-heading"><strong>{{ comment.user|title }}</strong></h4>
-                                    <textarea class="form-control"
-                                    onkeypress="editComment(${commentID});"
-                                    rows="3" id="edit-comment"
-                                    style="white-space: pre-wrap;">${currentContent}</textarea>
+                <h4 style="display: inline" class="media-heading"><strong>{{ user|title }}</strong></h4>
+                <span class="comment-date">${date}</span></br>
+                <div style="float: right">
+                    <a class="edit-comment"><span class="glyphicon-edit glyphicon"></span></a>
+                    <a class="remove-comment" data-toggle="modal" data-target="#myModal-${commentID}">
+                        <span class="glyphicon glyphicon-remove"></span> </a>
+                    <div class="modal fade" id="myModal-${commentID}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span></button>
+                                    <h4 class="modal-title" id="myModalLabel">Delete warning</h4>
+                                </div>
+                                <div class="modal-body">
+                                    Are you sure you want to delete this?
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel
+                                    </button>
+                                    <a href="/documents/comment/delete/${commentID}/" type="button" class="btn btn-danger">Yes im
+                                        sure!</a>
                                 </div>
                             </div>
-                     `
-        );
-    })
+                        </div>
+                    </div>
+                </div><span class="current-comment">${prevContent}</span>`);
+    });
 </script>
 

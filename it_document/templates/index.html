@@ -1,5 +1,4 @@
-{% extends 'base.html' %}
-{% load document_template_tags %}
+{% extends 'base.html' %}{% load document_template_tags %}
 {% block heading %}
     <div class="jumbotron jumbotron-billboard center-in-jumbotron jumbotron-index">
         <div class="img"></div>
@@ -21,15 +20,15 @@
 {% endblock %}
 {% block content %}
     <div class="endless_page_template">
+        {% include 'document/top_6_latest.html' %}
+    </div>
+    <br/>
+    <div class="endless_page_template">
         {% include 'document/top_6_likes.html' %}
     </div>
     <br/>
     <div class="endless_page_template">
         {% include 'document/top_6_rating.html' %}
-    </div>
-    <br/>
-    <div class="endless_page_template">
-        {% include 'document/top_6_latest.html' %}
     </div>
     <br/>
     <h1>Top contributors</h1>

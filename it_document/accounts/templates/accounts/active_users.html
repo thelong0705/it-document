@@ -1,0 +1,84 @@
+{% load el_pagination_tags %}{% paginate 12 active_users using "active_users_page" %}
+{% if deactivated %}
+    <div class="alert alert-info" role="alert">Users are deactivated succefully</div>
+{% endif %}
+{% if no_selected_active %}
+    <div class="alert alert-danger" role="alert">Items must be selected in order to perform actions on them</div>
+{% endif %}
+<form method="post">
+    {% csrf_token %}
+    <div style="margin-bottom: 20px;">
+        <input type="submit" class="btn btn-primary" name="action-approved" value="Deactivated selected">
+        <button type="button" class="btn btn-primary" id="select-all-approve">Select all</button>
+        <span id="selected-text-approve"> 0 of {{ active_users.count }} selected </span>
+    </div>
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="list-group">
+                {% for user_ in active_users %}
+                    {% if forloop.counter0 < 6 %}
+                        {% if forloop.counter0|divisibleby:2 %}
+                            <a href="{% url 'user_detail' user_.userprofileinfo.pk %}" class="list-group-item list-group-item-info ">{{ user_ }} <input class="checkbox-approve"
+                                                                                                type="checkbox"
+                                                                                                value="{{ user_.id }}"
+                                                                                                name="checkbox-approve">
+                            </a>
+
+                        {% else %}
+                            <a href="{% url 'user_detail' user_.userprofileinfo.pk %}" class="list-group-item list-group-item ">{{ user_ }} <input class="checkbox-approve"
+                                                                                           type="checkbox"
+                                                                                           value="{{ user_.id }}"
+                                                                                           name="checkbox-approve"> </a>
+                        {% endif %}
+                    {% endif %}
+                {% empty %}
+                    <h4>No users found</h4>
+                {% endfor %}
+            </div>
+            {% show_pages %} <span class="loader" hidden></span>
+        </div>
+        <div class="col-lg-6">
+            <div class="list-group">
+                {% for user_ in active_users %}
+                    {% if forloop.counter0 >= 6  and forloop.counter0 < 12 %}
+                        {% if forloop.counter0|divisibleby:2 %}
+                            <a href="{% url 'user_detail' user_.userprofileinfo.pk %}" class="list-group-item list-group-item-info ">{{ user_ }} <input class="checkbox-approve"
+                                                                                                type="checkbox"
+                                                                                                value="{{ user_.id }}"
+                                                                                                name="checkbox-approve">
+                            </a>
+
+                        {% else %}
+                            <a href="{% url 'user_detail' user_.userprofileinfo.pk %}" class="list-group-item list-group-item ">{{ user_ }} <input class="checkbox-approve"
+                                                                                           type="checkbox"
+                                                                                           value="{{ user_.id }}"
+                                                                                           name="checkbox-approve"> </a>
+                        {% endif %}
+                    {% endif %}
+                {% empty %}
+                    <h4>No users found</h4>
+                {% endfor %}
+            </div>
+        </div>
+        <br/><br/>
+    </div>
+</form>
+<script>
+    let selectBtnApprove = $(`#select-all-approve`);
+    selectBtnApprove.click(function (e) {
+        if (selectBtnApprove.text() === selectText) {
+            selectBtnApprove.text(unselectText);
+            $(`.checkbox-approve`).prop(`checked`, true);
+        }
+        else {
+            selectBtnApprove.text(selectText);
+            $(`.checkbox-approve`).prop(`checked`, false);
+        }
+        let totalChecked = $('.checkbox-approve:checked').length;
+        $(`#selected-text-approve`).text(`${totalChecked} of {{ active_users.count }} selected`)
+    });
+    $(`.checkbox-approve`).click(function (e) {
+        let totalChecked = $('.checkbox-approve:checked').length;
+        $(`#selected-text-approve`).text(`${totalChecked} of {{ active_users.count }} selected`)
+    })
+</script>

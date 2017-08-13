@@ -1,4 +1,7 @@
 {% extends 'base.html' %}
+{% block title %}
+    <title>Category-{{ category|title }}</title>
+{% endblock %}
 {% load staticfiles %}{% load document_template_tags %}
 {% block content %}
     <div class="jumbotron center-in-jumbotron" style="margin-top: 20px;">

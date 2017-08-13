@@ -52,6 +52,7 @@ hr {
     z-index: 1;
 }
 
+
 .jumbotron-index {
     position: relative;
     padding: 100px;
@@ -395,19 +396,18 @@ figure.thumb {
     }
 }
 
-.checkbox,.checkbox-approve {
+.checkbox, .checkbox-approve {
     float: right;
 }
-
 
 #bookmark-btn {
     margin-left: 10px;
 }
 
-.glyphicon-star{
+.glyphicon-star {
     color: lightgreen;
 }
 
-.current-comment{
+.current-comment {
     white-space: pre-wrap;
 }

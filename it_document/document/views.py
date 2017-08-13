@@ -3,9 +3,12 @@ import os
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.sites.shortcuts import get_current_site
+from django.core.mail import EmailMessage
 from django.db.models import Avg
 from django.http import HttpResponseRedirect, JsonResponse, HttpResponse, Http404
 from django.shortcuts import render, get_object_or_404
+from django.template.loader import render_to_string
 from django.urls import reverse
 from django.views.decorators.http import require_http_methods
 from django.views.generic import CreateView, UpdateView
@@ -36,6 +39,8 @@ def thank_you(request, pk):
 @page_template('document/comment_list.html')
 def document_detail(request, pk, template='document/document_detail.html', extra_context=None):
     document = get_object_or_404(Document, pk=pk)
+    if not document.approve and request.user.is_superuser:
+        return HttpResponseRedirect(reverse('unappove_document_detail', kwargs={'pk': pk}))
     if not document.approve:
         return render(request, 'accounts/no_permission.html')
     liked = document.liked_by.all().filter(id=request.user.id).exists()
@@ -49,7 +54,7 @@ def document_detail(request, pk, template='document/document_detail.html', extra
         rated = -1
     context = {
         'document': document,
-        'comments': Comment.objects.filter(document=document).order_by('-submit_date'),
+        'comments': Comment.objects.filter(document=document, user__is_active=True).order_by('-submit_date'),
         'rating': document.userratedocument_set.all().aggregate(Avg('rating'))['rating__avg'],
         'number_of_rate': document.userratedocument_set.all().count(),
         'rated': rated,
@@ -161,9 +166,12 @@ def approve(request, pk):
     document.save()
     if document.approve:
         activity = ActivityLog(user=request.user, document=document, verb='approved')
+        send_email_notification(request, admin=request.user, document=document, is_approve=True)
     else:
         activity = ActivityLog(user=request.user, document=document, verb='unapproved')
+        send_email_notification(request, admin=request.user, document=document, is_approve=False)
     activity.save()
+
     data = {
         'is_approve': document.approve
     }
@@ -235,6 +243,7 @@ def update_comment(request):
         return HttpResponse('Invalid content', status=status.HTTP_400_BAD_REQUEST)
     com = get_object_or_404(Comment, id=comment_id)
     com.content = content
+    com.is_edited = True
     com.save()
     return JsonResponse(data={}, status=status.HTTP_200_OK)
 
@@ -242,7 +251,26 @@ def update_comment(request):
 @login_required()
 def delete_comment(request, pk):
     com = get_object_or_404(Comment, pk=pk)
-    if request.user != com.user:
+    is_owner_or_admin = request.user.is_superuser or request.user == com.user
+    if not is_owner_or_admin:
         return render(request, 'accounts/no_permission.html')
     com.delete()
-    return HttpResponseRedirect(reverse('document_detail',kwargs={'pk':com.document.id}))
+    return HttpResponseRedirect(reverse('document_detail', kwargs={'pk': com.document.id}))
+
+
+def send_email_notification(request, admin, document, is_approve):
+    current_site = get_current_site(request)
+    if is_approve:
+        html_to_render = 'document/approve_document_notification.html'
+        mail_subject = 'Congratulations your document has been approved'
+    else:
+        html_to_render = 'document/unapprove_document_notification.html'
+        mail_subject = 'Your document has been unapproved'
+    message = render_to_string(html_to_render, {
+        'user': document.posted_user,
+        'admin': admin,
+        'domain': current_site.domain,
+        'pk': document.pk,
+    })
+    email_message = EmailMessage(mail_subject, message, to=[document.posted_user.email])
+    email_message.send()

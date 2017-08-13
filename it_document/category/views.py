@@ -31,13 +31,22 @@ def get_all_category_api(request):
             'des': '(Category)'
         }
         obj_list.append(obj)
-    for user in User.objects.all():
-        obj = {
-            'value': user.username,
-            'url': '/accounts/detail/{}'.format(user.userprofileinfo.id),
-            'des': '(User)'
-        }
-        obj_list.append(obj)
+    if request.user.is_superuser:
+        for user in User.objects.all():
+            obj = {
+                'value': user.username,
+                'url': '/accounts/detail/{}'.format(user.userprofileinfo.id),
+                'des': '(User)'
+            }
+            obj_list.append(obj)
+    else:
+        for user in User.objects.filter(is_active=True):
+            obj = {
+                'value': user.username,
+                'url': '/accounts/detail/{}'.format(user.userprofileinfo.id),
+                'des': '(User)'
+            }
+            obj_list.append(obj)
     for doc in Document.objects.filter(approve=True):
         obj = {
             'value': doc.title,

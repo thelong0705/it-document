@@ -1,0 +1,6 @@
+{% autoescape off %}
+Hi {{ user.username }},
+Your document has been approved by {{ admin.username }}. Go to the link below to check it out
+
+http://{{ domain }}{% url 'document_detail' pk  %}
+{% endautoescape %}

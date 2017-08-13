@@ -1,6 +1,9 @@
 {% extends "base.html" %}{% load bootstrap3 %}
+{% block title %}
+    <title>Add new document</title>
+{% endblock %}
 {% block form %}
-    <div class="jumbotron jumbotron-billboard center-in-jumbotron jumbotron-index" style="margin-bottom: 0">
+    <div class="jumbotron" style="margin-top:20px; margin-bottom: 0">
         <div class="img"></div>
         <div class="container">
             <form method="post" enctype="multipart/form-data">

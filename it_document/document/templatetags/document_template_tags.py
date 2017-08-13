@@ -50,14 +50,14 @@ def get_document_search(keyword):
 @register.inclusion_tag('document/top_user.html')
 def get_user_search(keyword):
     return {
-        'users': User.objects.filter(username__icontains=keyword)
+        'users': User.objects.filter(username__icontains=keyword, is_active=True)
     }
 
 
 @register.inclusion_tag('document/top_user.html')
 def get_top_user():
     return {
-        'users': User.objects.annotate(num_posts=Count('document')).order_by('-num_posts')[:6]
+        'users': User.objects.filter(is_active=True).annotate(num_posts=Count('document')).order_by('-num_posts')[:6]
     }
 
 
@@ -71,12 +71,12 @@ def get_documents_by_user(user):
 @register.inclusion_tag('document/top_likes.html')
 def get_unapprove_documents_by_user(user):
     return {
-        'documents': Document.objects.filter(posted_user=user, approve=True)
+        'documents': Document.objects.filter(posted_user=user, approve=False)
     }
 
 
 @register.inclusion_tag('document/top_likes.html')
 def get_bookmark_documents(user):
     return {
-        'documents': Document.objects.filter(bookmark__user=user, approve=False)
+        'documents': Document.objects.filter(bookmark__user=user, approve=True)
     }

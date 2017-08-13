@@ -1,0 +1,86 @@
+{% load el_pagination_tags %}{% paginate 12 unactive_users using "unactive_users_page" %}
+{% if activated %}
+    <div class="alert alert-info" role="alert">Users are activated succefully</div>
+{% endif %}
+{% if no_selected %}
+    <div class="alert alert-danger" role="alert">Items must be selected in order to perform actions on them</div>
+{% endif %}
+<form method="post">
+    {% csrf_token %}
+    <div style="margin-bottom: 20px;">
+        <input type="submit" class="btn btn-primary" name="action" value="Activate selected">
+        <button type="button" class="btn btn-primary" id="select-all">Select all</button>
+        <span id="selected-text"> 0 of {{ unactive_users.count }} selected </span>
+    </div>
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="list-group">
+                {% for user_ in unactive_users %}
+                    {% if forloop.counter0 < 6 %}
+                        {% if forloop.counter0|divisibleby:2 %}
+                            <a href="{% url 'user_detail' user_.userprofileinfo.pk %}" class="list-group-item list-group-item-info ">{{ user_ }} <input class="checkbox"
+                                                                                               type="checkbox"
+                                                                                               value="{{ user_.id }}"
+                                                                                               name="checkbox"> </a>
+
+                        {% else %}
+                            <a href="{% url 'user_detail' user_.userprofileinfo.pk %}" class="list-group-item list-group-item ">{{ user_ }} <input class="checkbox"
+                                                                                          type="checkbox"
+                                                                                          value="{{ user_.id }}"
+                                                                                          name="checkbox"> </a>
+                        {% endif %}
+                    {% endif %}
+                {% empty %}
+                    <h4>No users found</h4>
+                {% endfor %}
+            </div>
+            {% show_pages %} <span class="loader" hidden></span>
+        </div>
+        <div class="col-lg-6">
+            <div class="list-group">
+                {% for user_ in unactive_users %}
+                    {% if forloop.counter0 >= 6  and forloop.counter0 < 12 %}
+                        {% if forloop.counter0|divisibleby:2 %}
+                            <a href="{% url 'user_detail' user_.userprofileinfo.pk %}" class="list-group-item list-group-item-info ">{{ user_ }} <input class="checkbox-approve"
+                                                                                               type="checkbox"
+                                                                                               value="{{ user_.id }}"
+                                                                                               name="checkbox-approve">
+                            </a>
+
+                        {% else %}
+                            <a href="{% url 'user_detail' user_.userprofileinfo.pk %}" class="list-group-item list-group-item ">{{ user }} <input class="checkbox-approve"
+                                                                                          type="checkbox"
+                                                                                          value="{{ user_.id }}"
+                                                                                          name="checkbox-approve"> </a>
+                        {% endif %}
+                    {% endif %}
+                {% empty %}
+                    <h4>No users found</h4>
+                {% endfor %}
+            </div>
+        </div>
+        <br/><br/>
+    </div>
+</form>
+
+<script>
+    const unselectText = `Unselect all`;
+    const selectText = `Select all`;
+    let selectBtn = $(`#select-all`);
+    selectBtn.click(function (e) {
+        if (selectBtn.text() === selectText) {
+            selectBtn.text(unselectText);
+            $(`.checkbox`).prop(`checked`, true);
+        }
+        else {
+            selectBtn.text(selectText);
+            $(`.checkbox`).prop(`checked`, false);
+        }
+        let totalChecked = $('.checkbox:checked').length;
+        $(`#selected-text`).text(`${totalChecked} of {{ unactive_users.count }} selected`)
+    });
+    $(`.checkbox`).click(function (e) {
+        let totalChecked = $('.checkbox:checked').length;
+        $(`#selected-text`).text(`${totalChecked} of {{ unactive_users.count }} selected`)
+    })
+</script>

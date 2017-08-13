@@ -1,0 +1,127 @@
+{% load el_pagination_tags %}{% paginate 12 comments using "comments_page" %}
+{% if deleted %}
+    <div class="alert alert-info" role="alert">Comments are deleted successfully !</div>
+{% endif %}
+
+{% if no_selected %}
+    <div class="alert alert-danger" role="alert">Items must be selected in order to perform actions on them</div>
+{% endif %}
+<form method="post">
+    {% csrf_token %}
+    <div style="margin-bottom: 20px;">
+        <button type="button" class="btn btn-primary " data-toggle="modal" data-target="#myModal">
+            Delete selected
+        </button>
+        <button type="button" class="btn btn-primary" id="select-all">Select all</button>
+        <span id="selected-text"> 0 of {{ comments.count }} selected </span>
+    </div>
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">Delete warning</h4>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to delete this ?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel
+                    </button>
+                    <input type="submit" class="btn btn-danger" value="Delete" name="action">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="list-group">
+                {% for com in comments %}
+                    {% if forloop.counter0 < 6 %}
+                        {% if forloop.counter0|divisibleby:2 %}
+                            <li class="list-group-item list-group-item-info ">{{ com.content }} <input class="checkbox"
+                                                                                                       type="checkbox"
+                                                                                                       value="{{ com.id }}"
+                                                                                                       name="checkbox">
+                                by <a href="{% url 'user_detail' com.user.userprofileinfo.pk %}">
+                                    {{ com.user|title }}</a>
+                                at <a href="{% url 'document_detail' com.document.pk %}">
+                                    {{ com.document|title }}
+                                </a>
+                            </li>
+
+                        {% else %}
+                            <li class="list-group-item list-group-item ">{{ com.content }} <input class="checkbox"
+                                                                                                  type="checkbox"
+                                                                                                  value="{{ com.id }}"
+                                                                                                  name="checkbox">
+                                by <a href="{% url 'user_detail' com.user.userprofileinfo.pk %}">
+                                {{ com.user|title }}</a>
+                                at <a href="{% url 'document_detail' com.document.pk %}">
+                                    {{ com.document|title }}
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endif %}
+                {% empty %}
+                    <h4>No comments found</h4>
+                {% endfor %}
+            </div>
+            {% show_pages %} <span class="loader" hidden></span>
+        </div>
+        <div class="col-lg-6">
+            <div class="list-group">
+                {% for com in comments %}
+                    {% if forloop.counter0 >= 6  and forloop.counter0 < 12 %}
+                        {% if forloop.counter0|divisibleby:2 %}
+                            <li class="list-group-item list-group-item-info ">{{ com.content }} <input class="checkbox"
+                                                                                                       type="checkbox"
+                                                                                                       value="{{ com.id }}"
+                                                                                                       name="checkbox">
+                                by <a href="{% url 'user_detail' com.user.userprofileinfo.pk %}">
+                                    {{ com.user|title }}</a>
+                                at <a href="{% url 'document_detail' com.document.pk %}">
+                                    {{ com.document|title }}
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="list-group-item list-group-item ">{{ com.content }} <input class="checkbox"
+                                                                                                  type="checkbox"
+                                                                                                  value="{{ com.id }}"
+                                                                                                  name="checkbox">
+                                by <a href="{% url 'user_detail' com.user.userprofileinfo.pk %}">
+                                {{ com.user|title }}</a>
+                                at <a href="{% url 'document_detail' com.document.pk %}">
+                                    {{ com.document|title }}
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+        <br/><br/>
+    </div>
+</form>
+<script>
+    const unselectText = `Unselect all`;
+    const selectText = `Select all`;
+    let selectBtn = $(`#select-all`);
+    selectBtn.click(function (e) {
+        if (selectBtn.text() === selectText) {
+            selectBtn.text(unselectText);
+            $(`.checkbox`).prop(`checked`, true);
+        }
+        else {
+            selectBtn.text(selectText);
+            $(`.checkbox`).prop(`checked`, false);
+        }
+        let totalChecked = $('.checkbox:checked').length;
+        $(`#selected-text`).text(`${totalChecked} of {{ comments.count }} selected`)
+    });
+    $(`.checkbox`).click(function (e) {
+        let totalChecked = $('.checkbox:checked').length;
+        $(`#selected-text`).text(`${totalChecked} of {{ comments.count }} selected`)
+    })
+</script>

@@ -8,20 +8,14 @@
 {% block content %}
     {% include 'accounts/user_jumbotron_part.html' %}
     <ul class="nav nav-tabs">
-        <li role="presentation" class="active"><a href="#">Documents</a></li>
+        <li role="presentation"><a href="{% url 'admin_page' user.userprofileinfo.pk %}">Documents</a></li>
         <li role="presentation"><a href="{% url 'admin_page_users' user.userprofileinfo.pk %}">Users</a></li>
-        <li role="presentation"><a href="{% url 'admin_page_comments' user.userprofileinfo.pk %}">Comments</a></li>
+        <li role="presentation" class="active"><a href="{% url 'admin_page_comments' user.userprofileinfo.pk %}">Comments</a></li>
     </ul>
-    <h2>Unapproved documents</h2>
+    <h2>All Comments</h2>
     <hr/>
     <div class="endless_page_template">
-        {% include 'accounts/unapprove_documents.html' %}
+        {% include 'accounts/comments.html' %}
     </div>
-    <h2>Approved documents</h2>
-    <hr/>
-    <div class="endless_page_template">
-        {% include 'accounts/approve_documents.html' %}
-    </div>
-
     <br/><br/>
 {% endblock %}

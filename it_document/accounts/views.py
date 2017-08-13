@@ -4,25 +4,20 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.contrib.sites.shortcuts import get_current_site
+from django.core import mail
 from django.core.mail import EmailMessage
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.template.loader import render_to_string
 from django.urls import reverse
-from django.views.generic import DetailView, UpdateView, TemplateView
+from django.views.generic import UpdateView, TemplateView
 from el_pagination.decorators import page_template
 
 from accounts.forms import UserCreateForm, UserLoginForm, ForgotPasswordForm, ChangePasswordForm
-from document.models import ActivityLog, Document
+from document.models import ActivityLog, Document, Comment
 from .models import UserProfileInfo
 
 token_generator = PasswordResetTokenGenerator()
-
-
-class UserDetail(DetailView):
-    model = UserProfileInfo
-    template_name = 'accounts/user_detail.html'
-    context_object_name = 'user_profile'
 
 
 class UpdateUserProfile(LoginRequiredMixin, UpdateView):
@@ -58,6 +53,13 @@ def user_login(request):
     if form.is_valid():
         username = form.cleaned_data['username']
         password = form.cleaned_data['password']
+        try:
+            user = User.objects.get(username=username)
+            if not user.is_active:
+                form.add_error(None, "This account has been deactivated!")
+                return render(request, 'accounts/login.html', {'form': form})
+        except User.DoesNotExist:
+            pass
         user = authenticate(username=username, password=password)
         if user is None:
             form.add_error(None, "Username or Password is incorrect!")
@@ -73,7 +75,9 @@ def user_login(request):
 
 @page_template('accounts/activity_log_page.html')
 def user_detail(request, pk, template='accounts/user_detail.html', extra_context=None):
-    user_profile = UserProfileInfo.objects.get(pk=pk)
+    user_profile = get_object_or_404(UserProfileInfo, pk=pk)
+    if not user_profile.user.is_active and not request.user.is_superuser:
+        return render(request, 'accounts/no_permission.html')
     context = {
         'user_profile': user_profile,
         'logs': ActivityLog.objects.filter(user=user_profile.user).order_by('-time')
@@ -94,8 +98,8 @@ def show_adminpage(request, pk, template='accounts/admin_page.html', extra_conte
     context = {
         'user_profile': user_profile,
         'logs': ActivityLog.objects.filter(user=user_profile.user).order_by('-time'),
-        'documents': Document.objects.all().filter(approve=False).order_by('-id'),
-        'approve_documents': Document.objects.all().filter(approve=True).order_by('-id')
+        'documents': Document.objects.filter(approve=False).order_by('-id'),
+        'approve_documents': Document.objects.filter(approve=True).order_by('-id'),
     }
     if extra_context is not None:
         context.update(extra_context)
@@ -104,10 +108,10 @@ def show_adminpage(request, pk, template='accounts/admin_page.html', extra_conte
         action_approved = request.POST.get('action-approved')
         if action:
             checkbox = request.POST.getlist('checkbox')
-            documents = Document.objects.filter(id__in=checkbox)
             if not checkbox:
                 context['no_selected'] = True
                 return render(request, template, context=context)
+            documents = Document.objects.filter(id__in=checkbox)
             if action == 'Delete':
                 documents.delete()
                 context['deleted'] = True
@@ -118,6 +122,9 @@ def show_adminpage(request, pk, template='accounts/admin_page.html', extra_conte
                     ActivityLog(user=request.user, document=doc, verb='approved') for doc in documents
                 )
                 ActivityLog.objects.bulk_create(activites)
+                email_messages = [make_message(request, request.user, doc, True) for doc in documents]
+                connection = mail.get_connection()
+                connection.send_messages(email_messages)
                 context['approved'] = True
                 return render(request, template, context=context)
         else:
@@ -132,6 +139,9 @@ def show_adminpage(request, pk, template='accounts/admin_page.html', extra_conte
                     ActivityLog(user=request.user, document=doc, verb='unapproved') for doc in documents
                 )
                 ActivityLog.objects.bulk_create(activites)
+                email_messages = [make_message(request, request.user, doc, False) for doc in documents]
+                connection = mail.get_connection()
+                connection.send_messages(email_messages)
                 context['unapproved'] = True
             else:
                 for doc in documents:
@@ -205,7 +215,7 @@ def activate(request, pk, token):
         login(request, user)
         return redirect('index')
     else:
-        return HttpResponse('Activation link is invalid!')
+        return render(request, 'accounts/invalid_link.html')
 
 
 def forgot_pass(request):
@@ -257,16 +267,153 @@ def change_pass(request, pk, token):
     if request.method == 'POST':
         form = ChangePasswordForm(request.POST)
         if form.is_valid():
-            password1 = form.cleaned_data['password1']
-            password2 = form.cleaned_data['password2']
-            if password1 != password2:
-                form.add_error(None, 'Password confirm doesnt match')
-                return render(request, 'accounts/change_password_form.html', {'form': form})
-            user.set_password(password1)
+            user.set_password(form.cleaned_data['password1'])
             user.save()
             return HttpResponseRedirect('/accounts/login/?username={}'.format(user.username))
+        return render(request, 'accounts/change_password_form.html', {'form': form})
     else:
         if token_generator.check_token(user, token):
             form = ChangePasswordForm()
             return render(request, 'accounts/change_password_form.html', {'form': form})
-    return HttpResponse('Change password link is invalid!')
+    return render(request, 'accounts/invalid_link.html')
+
+
+@login_required()
+@page_template('accounts/activity_log_page.html')
+@page_template('accounts/active_users.html', key='active_users_page')
+@page_template('accounts/unactive_users.html', key='unactive_users_page')
+def show_adminpage_users(request, pk, template='accounts/admin_page_users.html', extra_context=None):
+    user_profile = UserProfileInfo.objects.get(pk=pk)
+    if not request.user.is_superuser:
+        return render(request, 'accounts/no_permission.html')
+    context = {
+        'user_profile': user_profile,
+        'logs': ActivityLog.objects.filter(user=user_profile.user).order_by('-time'),
+        'active_users': User.objects.filter(is_active=True).order_by('-id'),
+        'unactive_users': User.objects.filter(is_active=False).order_by('-id')
+    }
+    if extra_context is not None:
+        context.update(extra_context)
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        if action:
+            checkbox = request.POST.getlist('checkbox')
+            if not checkbox:
+                context['no_selected'] = True
+                return render(request, template, context=context)
+            users = User.objects.filter(id__in=checkbox)
+            users.update(is_active=True)
+            context['activated'] = True
+            email_messages = [make_message_account(request, request.user, user, True) for user in users]
+            connection = mail.get_connection()
+            connection.send_messages(email_messages)
+            return render(request, template, context=context)
+        else:
+            checkbox_approve = request.POST.getlist('checkbox-approve')
+            if not checkbox_approve:
+                context['no_selected_active'] = True
+                return render(request, template, context=context)
+            users = User.objects.filter(id__in=checkbox_approve)
+            users.update(is_active=False)
+            context['deactivated'] = True
+            email_messages = [make_message_account(request, request.user, user, False) for user in users]
+            connection = mail.get_connection()
+            connection.send_messages(email_messages)
+            return render(request, template, context=context)
+    return render(request, template, context=context)
+
+
+@login_required()
+@page_template('accounts/activity_log_page.html')
+@page_template('accounts/comments.html', key='comments_page')
+def show_adminpage_comments(request, pk, template='accounts/admin_page_comments.html', extra_context=None):
+    user_profile = UserProfileInfo.objects.get(pk=pk)
+    if not request.user.is_superuser:
+        return render(request, 'accounts/no_permission.html')
+    context = {
+        'user_profile': user_profile,
+        'logs': ActivityLog.objects.filter(user=user_profile.user).order_by('-time'),
+        'comments': Comment.objects.order_by('-id')
+    }
+    if extra_context is not None:
+        context.update(extra_context)
+    if request.method == 'POST':
+        checkbox = request.POST.getlist('checkbox')
+        if not checkbox:
+            context['no_selected'] = True
+            return render(request, template, context=context)
+        comments = Comment.objects.filter(id__in=checkbox)
+        comments.delete()
+        context['deleted'] = True
+        return render(request, template, context=context)
+    return render(request, template, context=context)
+
+
+def make_message(request, admin, document, is_approve):
+    current_site = get_current_site(request)
+    if is_approve:
+        html_to_render = 'document/approve_document_notification.html'
+        mail_subject = 'Congratulations your document has been approved'
+    else:
+        html_to_render = 'document/unapprove_document_notification.html'
+        mail_subject = 'Your document has been unapproved'
+    message = render_to_string(html_to_render, {
+        'user': document.posted_user,
+        'admin': admin,
+        'domain': current_site.domain,
+        'pk': document.pk,
+    })
+    email_message = EmailMessage(mail_subject, message, to=[document.posted_user.email])
+    return email_message
+
+
+def deactivate_account(request, pk):
+    if not request.user.is_superuser:
+        return render(request, 'accounts/no_permission.html')
+    userprofileinfo = get_object_or_404(UserProfileInfo, pk=pk)
+    user = userprofileinfo.user
+    user.is_active = not user.is_active
+    user.save()
+    if user.is_active:
+        send_email_account(request, request.user, user, True)
+    else:
+        send_email_account(request, request.user, user, False)
+
+    data = {
+        'is_active': user.is_active
+    }
+    return JsonResponse(data=data)
+
+
+def send_email_account(request, admin, user, is_activate):
+    current_site = get_current_site(request)
+    if not is_activate:
+        html_to_render = 'accounts/notify_deactivate.html'
+        mail_subject = 'Your it-document account has been deactivated'
+    else:
+        html_to_render = 'accounts/notify_active.html'
+        mail_subject = 'Your it-document account has been reactivated'
+    message = render_to_string(html_to_render, {
+        'user': user,
+        'admin': admin,
+        'domain': current_site.domain,
+    })
+    email_message = EmailMessage(mail_subject, message, to=[user.email])
+    email_message.send()
+
+
+def make_message_account(request, admin, user, is_activate):
+    current_site = get_current_site(request)
+    if not is_activate:
+        html_to_render = 'accounts/notify_deactivate.html'
+        mail_subject = 'Your it-document account has been deactivated'
+    else:
+        html_to_render = 'accounts/notify_active.html'
+        mail_subject = 'Your it-document account has been reactivated'
+    message = render_to_string(html_to_render, {
+        'user': user,
+        'admin': admin,
+        'domain': current_site.domain,
+    })
+    email_message = EmailMessage(mail_subject, message, to=[user.email])
+    return email_message

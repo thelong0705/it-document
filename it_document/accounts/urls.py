@@ -9,9 +9,12 @@ urlpatterns = [
     url(r'^change-pass/(?P<pk>\d+)/(?P<token>.*)/$', views.change_pass, name='change_password'),
     url(r'^logout/$', auth_views.LogoutView.as_view(), name='logout'),
     url(r'^detail/(?P<pk>\d+)/$', views.user_detail, name='user_detail'),
+    url(r'^deactivate/(?P<pk>\d+)/$', views.deactivate_account, name='deactivate_user'),
     url(r'^update/(?P<pk>\d+)/$', views.UpdateUserProfile.as_view(), name='update_user_detail'),
     url(r'^no-permission/$', views.NoPermissionView.as_view(), name='no_permission'),
     url(r'^admin/(?P<pk>\d+)/$', views.show_adminpage, name='admin_page'),
+    url(r'^admin/(?P<pk>\d+)/users/$', views.show_adminpage_users, name='admin_page_users'),
+    url(r'^admin/(?P<pk>\d+)/comments/$', views.show_adminpage_comments, name='admin_page_comments'),
     url(r'^activate/(?P<pk>\d+)/(?P<token>.*)/$',
         views.activate, name='activate'),
 ]

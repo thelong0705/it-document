@@ -1,0 +1,6 @@
+{% autoescape off %}
+Hi {{ user.username }},
+Your document has been unapproved by {{ admin.username }}. Go to the link below to edit it
+
+http://{{ domain }}{% url 'unappove_document_detail' pk  %}
+{% endautoescape %}
