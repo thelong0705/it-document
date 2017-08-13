@@ -17,6 +17,7 @@
                         <input type="hidden" name="next"
                                value="{{ next }}"/> {{ form.non_field_errors }} {{ form.username.errors }}
                         {% if username %}
+                            <h4 style="color: #58bff6;"> Change password successfully! Login with your new password</h4>
                             <input type="text" name="username" value="{{ username }}" id="email" class="form-style"
                                    autocomplete="off" placeholder="Username"/>
                         {% else %}

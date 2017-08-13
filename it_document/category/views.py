@@ -5,9 +5,10 @@ from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.decorators.http import require_http_methods
 from el_pagination.decorators import page_template
+from rest_framework import status
+
 from document.models import Document
 from .models import Category
-from rest_framework import status
 
 
 @login_required()
@@ -98,15 +99,15 @@ def category_detail(request, pk,
     elif user_filter == 'Rating':
         context = {
             'category': Category.objects.get(pk=pk),
-            'documents': Document.objects.filter(topic__pk=pk, approve=True).order_by('-rating').annotate(
-                num_likes=Count('liked_by')
-            ).order_by('-num_likes'),
+            'documents': Document.objects.annotate(
+                num_votes=Count('userratedocument')
+            ).filter(approve=True).order_by('-rating', '-num_votes'),
             'selected': '?order=Rating'
         }
     else:
         context = {
             'category': Category.objects.get(pk=pk),
-            'documents': Document.objects.filter(topic__pk=pk,approve=True).order_by('-id'),
+            'documents': Document.objects.filter(topic__pk=pk, approve=True).order_by('-id'),
             'selected': '?order=Date'
         }
         if extra_context is not None:

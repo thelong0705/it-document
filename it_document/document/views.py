@@ -84,7 +84,10 @@ class DocumentUpdateView(LoginRequiredMixin, UpdateView):
         return super().form_valid(form)
 
     def get_success_url(self):
-        return reverse('document_detail', kwargs={'pk': self.get_object().id})
+        if self.get_object().approve:
+            return reverse('document_detail', kwargs={'pk': self.get_object().id})
+        else:
+            return reverse('unappove_document_detail', kwargs={'pk': self.get_object().id})
 
 
 @login_required()
@@ -119,6 +122,8 @@ def bookmark(request, pk):
     bookmark_obj, created = Bookmark.objects.get_or_create(user=user, document=document)
     if not created:
         bookmark_obj.delete()
+        activity = ActivityLog(user=user, document=document, verb='unbookmarked')
+        activity.save()
     data = {
         'bookmarked': created
     }
@@ -158,7 +163,7 @@ def rate(request):
 
 
 @login_required()
-def approve(request, pk):
+def approve_document(request, pk):
     if not request.user.is_superuser:
         return render(request, 'accounts/no_permission.html')
     document = get_object_or_404(Document, pk=pk)
@@ -166,16 +171,14 @@ def approve(request, pk):
     document.save()
     if document.approve:
         activity = ActivityLog(user=request.user, document=document, verb='approved')
+        activity.save()
         send_email_notification(request, admin=request.user, document=document, is_approve=True)
+        return HttpResponseRedirect(reverse('document_detail', kwargs={'pk': pk}))
     else:
         activity = ActivityLog(user=request.user, document=document, verb='unapproved')
+        activity.save()
         send_email_notification(request, admin=request.user, document=document, is_approve=False)
-    activity.save()
-
-    data = {
-        'is_approve': document.approve
-    }
-    return JsonResponse(data=data)
+        return HttpResponseRedirect(reverse('unappove_document_detail', kwargs={'pk': pk}))
 
 
 def download(request, path):
@@ -191,6 +194,8 @@ def download(request, path):
 @login_required()
 def unapprove_document_detail(request, pk):
     document = get_object_or_404(Document, pk=pk)
+    if document.approve:
+        return HttpResponseRedirect(reverse('document_detail', kwargs={'pk': pk}))
     is_owner_or_admin = request.user.is_superuser or request.user == document.posted_user
     if not is_owner_or_admin:
         return render(request, 'accounts/no_permission.html')
@@ -209,6 +214,8 @@ def delete_document(request, pk):
     if not is_owner_or_admin:
         return render(request, 'accounts/no_permission.html')
     document.delete()
+    activity = ActivityLog(user=request.user, document=document, verb='deleted a comment at')
+    activity.save()
     data = {
         'deleted': True
     }

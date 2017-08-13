@@ -80,7 +80,8 @@ def user_detail(request, pk, template='accounts/user_detail.html', extra_context
         return render(request, 'accounts/no_permission.html')
     context = {
         'user_profile': user_profile,
-        'logs': ActivityLog.objects.filter(user=user_profile.user).order_by('-time')
+        'logs': ActivityLog.objects.filter(user=user_profile.user).order_by('-time'),
+        'approved_posts': user_profile.user.document_set.filter(approve=True).count()
     }
     if extra_context is not None:
         context.update(extra_context)

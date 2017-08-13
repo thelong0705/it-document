@@ -37,8 +37,6 @@ class Document(models.Model):
                             validators=[validate_file_extension])
     image = models.ImageField(upload_to='document_images', default='/document_images/question_mark.jpg')
     review = models.TextField()
-    number_of_likes = models.PositiveIntegerField(default=0)
-    number_of_views = models.PositiveIntegerField(default=0)
     posted_user = models.ForeignKey(User)
     approve = models.BooleanField(default=False)
     liked_by = models.ManyToManyField(User, blank=True, related_name='liked_documents')
@@ -106,14 +104,6 @@ def create_bookmark_handler(sender, instance, **kwargs):
     activity.save()
 
 
-@receiver(post_delete, sender=Bookmark)
-def delete_bookmark_handler(sender, instance, **kwargs):
-    user = instance.user
-    document = instance.document
-    activity = ActivityLog(user=user, document=document, verb='unbookmarked')
-    activity.save()
-
-
 @receiver(post_save, sender=Comment)
 def create_comment_handler(sender, instance, created, **kwargs):
     user = instance.user
@@ -124,14 +114,6 @@ def create_comment_handler(sender, instance, created, **kwargs):
     else:
         activity = ActivityLog(user=user, document=document, verb='edited a comment at')
         activity.save()
-
-
-@receiver(post_delete, sender=Comment)
-def comment_delete_handler(sender, instance, **kwargs):
-    user = instance.user
-    document = instance.document
-    activity = ActivityLog(user=user, document=document, verb='deleted a comment at')
-    activity.save()
 
 
 @receiver(post_save, sender=Document)

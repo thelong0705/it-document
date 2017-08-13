@@ -57,7 +57,8 @@ def get_user_search(keyword):
 @register.inclusion_tag('document/top_user.html')
 def get_top_user():
     return {
-        'users': User.objects.filter(is_active=True).annotate(num_posts=Count('document')).order_by('-num_posts')[:6]
+        'users': User.objects.filter(is_active=True, document__approve=True).annotate(num_posts=Count('document'))
+                     .order_by('-num_posts')[:6]
     }
 
 

@@ -17,8 +17,9 @@
                         {{ user_profile.biography }}</p><br>
                 </div>
                 <div class="w3-block w3-dark-grey" style="padding: 10px;">
-                    <span class="text-span glyphicon glyphicon-upload small"></span> {{ user_profile.user.document_set.count }}
-                    posts
+                    <span class="text-span glyphicon glyphicon-upload small"></span>
+                    {{ approved_posts }}
+                    approved posts
                     {% if user == user_profile.user %}
                         <a href="{% url 'update_user_detail' user_profile.id %}" class="btn btn-primary"
                            style="float: right;"><span class="glyphicon glyphicon-edit"></span> Edit profile</a>

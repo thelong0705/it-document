@@ -6,8 +6,7 @@ from django.urls import reverse
 class UserProfileInfo(models.Model):
     user = models.OneToOneField(User)
     avatar = models.ImageField(upload_to='user_images', default='/user_images/question_mark.jpg')
-    biography = models.TextField(default='')
-    number_of_documents = models.IntegerField(default=0)
+    biography = models.TextField(blank=True,null=True)
 
     def __str__(self):
         return self.user.username

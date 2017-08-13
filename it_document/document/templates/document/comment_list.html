@@ -102,6 +102,7 @@
                     },
                     success: function (data) {
                         content = escapeHtml(content);
+                        {% if user.is_authenticated %}
                         div.html(`
                         <h4 style="display: inline" class="media-heading">
                             <a href="{% url 'user_detail' user.userprofileinfo.pk %}">
@@ -133,6 +134,7 @@
                                 </div>
                             </div>
                         <span class="current-comment">${content}</span>`);
+                        {% endif %}
                         div.id = commentID;
                     },
                     complete: function () {

@@ -15,13 +15,19 @@
                     <div class='genre'>
                         Category:
                         {% for topic in document.topic.all %}
-                            {{ topic|title }},
+                            <a href="{% url 'category_detail' topic.pk %}">{{ topic|title }}</a>,
                         {% endfor %}
                     </div>
                     <h1 class='heading'>
                         {{ document.title|title }} </h1>
                     <div class='author'>
-                        posted by {{ document.posted_user|title }}
+                        {% if document.posted_user.is_active %}
+                            <a href="{% url 'user_detail' document.posted_user.userprofileinfo.pk %}"> Posted
+                                by {{ document.posted_user|title }} </a>
+                        {% else %}
+                            Posted by {{ document.posted_user|title }}
+                        {% endif %}
+                        at {{ document.submit_date }}<br/> Last edited: {{ document.edited_date }}
                     </div>
                     <div class='rating'>
                         <span class="glyphicon glyphicon-star"></span>
@@ -46,12 +52,8 @@
                     {% endif %}
                     <div class="footer">
                         {% if user.is_superuser %}
-                            {% if is_approve %}
-                                <a class="btn-primary btn approve-btn"> <span
-                                        class="glyphicon glyphicon-thumbs-down"></span> Unapprove </a>
-                            {% else %}
-                                <a class="btn-primary btn approve-btn"><span class="glyphicon glyphicon-ok"></span>Approve</a>
-                            {% endif %}
+                            <a class="btn-primary btn" href="{% url 'document_approve' document.pk %}"><span
+                                    class="glyphicon glyphicon-ok"></span>Approve</a>
                         {% endif %}
                         {% if user == document.posted_user %}
                             <a href="{% url 'document_update' document.id %}" class="btn btn-primary"> <span
@@ -87,42 +89,6 @@
         </div>
     </div>
     <script>
-        $(".approve-btn").click(function (e) {
-            e.preventDefault();
-            let api_url = `/documents/approve/{{ document.id }}/`;
-            $(`.loader`).show();
-            $.ajax({
-                url: api_url,
-                method: "GET",
-                data: {},
-                success: function (data) {
-                    if (data.is_approve) {
-                        $(".approve-btn").html(`<span class="glyphicon glyphicon-thumbs-down"></span> Unapprove`);
-                    } else {
-                        $(".approve-btn").html(`<span class="glyphicon glyphicon-ok"></span> Approve`);
-                    }
-                },
-                complete: function (data) {
-                    $(`.loader`).hide();
-                },
-                statusCode: {
-                    400: function () {
-                        alert(`Bad request`);
-                    },
-                    404: function () {
-                        alert(`Not found`);
-                    },
-                    500: function () {
-                        alert(`Internal server error`);
-                    },
-                },
-                error: function (XMLHttpRequest, textStatus, errorThrown) {
-                    if (XMLHttpRequest.readyState === 0) {
-                        alert(`No connection`);
-                    }
-                }
-            });
-        });
         $("#delete-btn-modal").click(function (e) {
             e.preventDefault();
             let api_url = `/documents/delete/api/{{ document.id }}/`;

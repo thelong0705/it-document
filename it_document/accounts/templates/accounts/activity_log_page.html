@@ -1,24 +1,20 @@
-{% load el_pagination_tags %}
-{% paginate 4 logs %}
+{% load el_pagination_tags %}{% paginate 4 logs %}
 
 {% for log in logs %}
     <p>{{ log.user.username|capfirst }} {{ log.verb }}
-        {% if log.document %}
-            {% if log.document.approve %}
+
+        {% if log.document.approve %}
             <a href="{% url 'document_detail' log.document.id %}">{{ log.document.title|title }}</a>
-            {% else %}
-                a document
-            {% endif %}
+        {% else %}
+            a document
         {% endif %}
         {% if log.content %}
             {{ log.content }}
         {% endif %}
-        at {{ log.time|timesince }} ago
-    </p>
+        at {{ log.time|timesince }} ago </p>
 {% empty %}
     <p> No activity found </p>
 {% endfor %}
 <div>
-    {% show_pages %}
-    <span class="loader" hidden></span>
+    {% show_pages %} <span class="loader" hidden></span>
 </div>
