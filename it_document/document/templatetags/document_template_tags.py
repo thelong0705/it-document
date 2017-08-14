@@ -48,8 +48,11 @@ def get_document_search(keyword):
 
 @register.inclusion_tag('document/top_user.html')
 def get_user_search(keyword):
+    users = User.objects.filter(username__icontains=keyword, is_active=True)
+    for user in users:
+        user.approved_count = user.document_set.filter(approve=True).count()
     return {
-        'users': User.objects.filter(username__icontains=keyword, is_active=True)
+        'users': users
     }
 
 

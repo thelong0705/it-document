@@ -93,7 +93,7 @@ def category_detail(request, pk,
             'category': Category.objects.get(pk=pk),
             'documents': Document.objects.filter(topic__pk=pk, approve=True).annotate(
                 num_likes=Count('liked_by')
-            ).order_by('-num_likes', '-rating'),
+            ).order_by('-num_likes', '-rating', '-id'),
             'selected': '?order=Likes'
         }
     elif user_filter == 'Rating':
@@ -101,7 +101,7 @@ def category_detail(request, pk,
             'category': Category.objects.get(pk=pk),
             'documents': Document.objects.annotate(
                 num_votes=Count('userratedocument')
-            ).filter(approve=True).order_by('-rating', '-num_votes'),
+            ).filter(topic__pk=pk, approve=True).order_by('-rating', '-num_votes', '-id'),
             'selected': '?order=Rating'
         }
     else:

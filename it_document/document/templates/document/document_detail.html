@@ -126,6 +126,7 @@
                             $(`#no-comments`).hide();
                             content = escapeHtml(content);
                             $("#comment").val("");
+                            {% if user.is_authenticated %}
                             $(`
                             <div class="media">
                                 <div class="media-left">
@@ -133,6 +134,7 @@
                                          height="80px">
                                 </div>
                                 <div class="media-body" id=${data.id}>
+
                                     <h4 style="display: inline" class="media-heading"><a href="{% url 'user_detail' user.userprofileinfo.pk %}">
                                 <strong>{{ user|title }}</strong></a></h4>
                                     <span class="comment-date">just now</span></br>
@@ -165,6 +167,7 @@
                                     <span class="current-comment">${content}</span>
                                 </div>
                             </div>`).insertAfter("#comment-box");
+                             {% endif %}
                         },
                         complete: function () {
                             $(`.loader-comment`).hide();
