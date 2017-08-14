@@ -23,6 +23,10 @@
                         {% for topic in document.topic.all %}
                             <a href="{% url 'category_detail' topic.pk %}">{{ topic|title }}</a>,
                         {% endfor %}
+                        <br>Level:
+                        {% for level in document.level.all %}
+                            {{ level }},
+                        {% endfor %}
                     </div>
                     <h1 class='heading'>
                         {{ document.title|title }} </h1>
@@ -119,6 +123,7 @@
                             'csrfmiddlewaretoken': '{{ csrf_token }}',
                         },
                         success: function (data) {
+                            $(`#no-comments`).hide();
                             content = escapeHtml(content);
                             $("#comment").val("");
                             $(`
@@ -128,7 +133,8 @@
                                          height="80px">
                                 </div>
                                 <div class="media-body" id=${data.id}>
-                                    <h4 style="display: inline" class="media-heading"><strong>{{ user|title }}</strong></h4>
+                                    <h4 style="display: inline" class="media-heading"><a href="{% url 'user_detail' user.userprofileinfo.pk %}">
+                                <strong>{{ user|title }}</strong></a></h4>
                                     <span class="comment-date">just now</span></br>
                                     <div style="float: right">
                                         <a class="edit-comment"><span class="glyphicon-edit glyphicon"></span></a>

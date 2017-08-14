@@ -24,9 +24,9 @@ EL_PAGINATION_PREVIOUS_LABEL = 'Back'
 SECRET_KEY = 'l83l2bi)i#($hmmf7^s3b8z!#*7w5=u=1csv@)smvlo$^c7c4q'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ['thelong0705.pythonanywhere.com']
+ALLOWED_HOSTS = []
 
 
 # Application definition

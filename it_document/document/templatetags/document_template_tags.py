@@ -2,8 +2,7 @@ from django import template
 from django.contrib.auth.models import User
 from django.db.models import Count
 
-from document.models import Document, Comment, Bookmark
-from category.models import Category
+from document.models import Document
 
 register = template.Library()
 
@@ -56,10 +55,12 @@ def get_user_search(keyword):
 
 @register.inclusion_tag('document/top_user.html')
 def get_top_user():
-    return {
-        'users': User.objects.filter(is_active=True, document__approve=True).annotate(num_posts=Count('document'))
-                     .order_by('-num_posts')[:6]
-    }
+    users = User.objects.filter(is_active=True, document__approve=True).annotate(
+        num_posts=Count('document')
+    ).order_by('-num_posts')[:6]
+    for user in users:
+        user.approved_count = user.document_set.filter(approve=True).count()
+    return {'users': users}
 
 
 @register.inclusion_tag('document/top_likes.html')

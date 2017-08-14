@@ -17,6 +17,10 @@
                         {% for topic in document.topic.all %}
                             <a href="{% url 'category_detail' topic.pk %}">{{ topic|title }}</a>,
                         {% endfor %}
+                        <br>Level:
+                        {% for level in document.level.all %}
+                            {{ level }},
+                        {% endfor %}
                     </div>
                     <h1 class='heading'>
                         {{ document.title|title }} </h1>

@@ -9,12 +9,13 @@
                     <p>{{ user_profile.user.email }}</p>
                     <hr>
                     <img src="{{ user_profile.avatar.url }}" alt="Avatar" class="w3-left w3-circle w3-margin-right"
-                         style="width:60px; height: 60px;">
+                         style="width:60px; height: 60px; margin-bottom: 10px;">
                     <p style="word-wrap: break-word;"> Biography:
                         {% if not user_profile.biography %}
                             No information
+                        {% else %}
+                            {{ user_profile.biography }}</p><br>
                         {% endif %}
-                        {{ user_profile.biography }}</p><br>
                 </div>
                 <div class="w3-block w3-dark-grey" style="padding: 10px;">
                     <span class="text-span glyphicon glyphicon-upload small"></span>

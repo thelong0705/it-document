@@ -20,10 +20,10 @@ def entry_index(request, template='index.html', extra_context=None):
     context = {
         'documents': Document.objects.filter(approve=True).annotate(
             num_likes=Count('liked_by')
-        ).order_by('-num_likes', '-rating')[:12],
+        ).order_by('-num_likes', '-rating', '-id')[:12],
         'documents_top_rating': Document.objects.annotate(
             num_votes=Count('userratedocument')
-        ).filter(num_votes__gt=1, approve=True).order_by('-rating', '-num_votes')[:12],
+        ).filter(num_votes__gt=1, approve=True).order_by('-rating', '-num_votes', '-id')[:12],
         'documents_latest': Document.objects.filter(approve=True).order_by('-id')[:12]
     }
     if extra_context is not None:

@@ -29,7 +29,6 @@ class Document(models.Model):
     title = models.CharField(max_length=200, unique=True)
     topic = models.ManyToManyField(Category, )
     level = models.ManyToManyField(Level)
-    author = models.CharField(max_length=50, blank=True, null=True)
     submit_date = models.DateField(auto_now_add=True)
     edited_date = models.DateField(default=timezone.now)
     link = models.URLField(null=True, blank=True)

@@ -6,7 +6,7 @@ from .models import Document, UserRateDocument
 class DocumentCreateForm(ModelForm):
     class Meta:
         model = Document
-        fields = ('title', 'level', 'author', 'link', 'file', 'image', 'review', 'topic')
+        fields = ('title', 'level', 'link', 'file', 'image', 'review', 'topic')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
