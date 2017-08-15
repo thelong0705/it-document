@@ -344,6 +344,10 @@ def show_adminpage_comments(request, pk, template='accounts/admin_page_comments.
             context['no_selected'] = True
             return render(request, template, context=context)
         comments = Comment.objects.filter(id__in=checkbox)
+        activites = (
+            ActivityLog(user=request.user, document=com.document, verb='deleted a comment at') for com in comments
+        )
+        ActivityLog.objects.bulk_create(activites)
         comments.delete()
         context['deleted'] = True
         return render(request, template, context=context)

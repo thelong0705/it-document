@@ -214,8 +214,6 @@ def delete_document(request, pk):
     if not is_owner_or_admin:
         return render(request, 'accounts/no_permission.html')
     document.delete()
-    activity = ActivityLog(user=request.user, document=document, verb='deleted a comment at')
-    activity.save()
     data = {
         'deleted': True
     }
@@ -232,12 +230,6 @@ def comment(request):
         return render(request, 'accounts/no_permission.html', status.HTTP_400_BAD_REQUEST)
     com = Comment(user=request.user, document=document, content=content)
     com.save()
-    activity = ActivityLog(
-        user=request.user,
-        document=document,
-        verb='commented',
-    )
-    activity.save()
     return JsonResponse(data={'id': com.id}, status=status.HTTP_200_OK)
 
 
@@ -261,6 +253,8 @@ def delete_comment(request, pk):
     is_owner_or_admin = request.user.is_superuser or request.user == com.user
     if not is_owner_or_admin:
         return render(request, 'accounts/no_permission.html')
+    activity = ActivityLog(user=request.user, document=com.document, verb='deleted a comment at')
+    activity.save()
     com.delete()
     return HttpResponseRedirect(reverse('document_detail', kwargs={'pk': com.document.id}))
 
